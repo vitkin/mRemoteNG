@@ -656,7 +656,7 @@ Namespace App
                 cL = New Connection.List
                 ctL = New Container.List
 
-                Dim conL As New Config.Connections.Load
+                Dim conL As New Config.Connections.XML
 
                 My.Settings.LoadConsFromCustomLocation = False
 
@@ -724,20 +724,22 @@ Namespace App
                 cL = New Connection.List
                 ctL = New Container.List
 
-                Dim conL As New Config.Connections.Load
+                Dim conL As Config.Connections.Base
 
                 If My.Settings.UseSQLServer = False Then
+                    conL = New Config.Connections.XML
+                    Dim connectionXML As Config.Connections.XML = conL
                     If WithDialog Then
                         Dim lD As OpenFileDialog = Tools.Controls.ConnectionsLoadDialog
 
                         If lD.ShowDialog = System.Windows.Forms.DialogResult.OK Then
-                            conL.ConnectionFileName = lD.FileName
+                            connectionXML.ConnectionFileName = lD.FileName
 
-                            If conL.ConnectionFileName = App.Info.Connections.DefaultConnectionsPath & "\" & App.Info.Connections.DefaultConnectionsFile Then
+                            If connectionXML.ConnectionFileName = App.Info.Connections.DefaultConnectionsPath & "\" & App.Info.Connections.DefaultConnectionsFile Then
                                 My.Settings.LoadConsFromCustomLocation = False
                             Else
                                 My.Settings.LoadConsFromCustomLocation = True
-                                My.Settings.CustomConsPath = conL.ConnectionFileName
+                                My.Settings.CustomConsPath = connectionXML.ConnectionFileName
                             End If
                         Else
                             Exit Sub
@@ -747,23 +749,23 @@ Namespace App
                             Dim oldPath As String = GetFolderPath(SpecialFolder.LocalApplicationData) & "\" & My.Application.Info.ProductName & "\" & App.Info.Connections.DefaultConnectionsFile
                             Dim newPath As String = App.Info.Connections.DefaultConnectionsPath & "\" & App.Info.Connections.DefaultConnectionsFile
                             If File.Exists(newPath) Then
-                                conL.ConnectionFileName = newPath
+                                connectionXML.ConnectionFileName = newPath
 #If Not PORTABLE Then
-                            Else If File.Exists(oldPath) Then
-                                conL.ConnectionFileName = oldPath
+                            ElseIf File.Exists(oldPath) Then
+                                connectionXML.ConnectionFileName = oldPath
 #End If
                             End If
                         Else
-                            conL.ConnectionFileName = My.Settings.CustomConsPath
+                            connectionXML.ConnectionFileName = My.Settings.CustomConsPath
                         End If
                     End If
 
-                    If File.Exists(conL.ConnectionFileName) = False Then
+                    If File.Exists(connectionXML.ConnectionFileName) = False Then
                         If WithDialog Then
-                            mC.AddMessage(Messages.MessageClass.WarningMsg, String.Format(My.Resources.strConnectionsFileCouldNotBeLoaded, conL.ConnectionFileName))
+                            mC.AddMessage(Messages.MessageClass.WarningMsg, String.Format(My.Resources.strConnectionsFileCouldNotBeLoaded, connectionXML.ConnectionFileName))
                         Else
-                            mC.AddMessage(Messages.MessageClass.InformationMsg, String.Format(My.Resources.strConnectionsFileCouldNotBeLoadedNew, conL.ConnectionFileName))
-                            App.Runtime.NewConnections(conL.ConnectionFileName)
+                            mC.AddMessage(Messages.MessageClass.InformationMsg, String.Format(My.Resources.strConnectionsFileCouldNotBeLoadedNew, connectionXML.ConnectionFileName))
+                            App.Runtime.NewConnections(connectionXML.ConnectionFileName)
                         End If
 
                         Exit Sub
@@ -771,11 +773,21 @@ Namespace App
 
                     Try
                         If App.Editions.Spanlink.Enabled = False Then
-                            File.Copy(conL.ConnectionFileName, conL.ConnectionFileName & "_BAK", True)
+                            File.Copy(connectionXML.ConnectionFileName, connectionXML.ConnectionFileName & "_BAK", True)
                         End If
                     Catch ex As Exception
                         mC.AddMessage(Messages.MessageClass.WarningMsg, My.Resources.strConnectionsFileBackupFailed & vbNewLine & vbNewLine & ex.Message)
                     End Try
+                Else
+                    conL = New Config.Connections.MSSQL
+                    Dim connectionSQL As Config.Connections.MSSQL = conL
+
+                    connectionSQL.UseSQL = My.Settings.UseSQLServer
+                    connectionSQL.SQLHost = My.Settings.SQLHost
+                    connectionSQL.SQLDatabaseName = My.Settings.SQLDatabaseName
+                    connectionSQL.SQLUsername = My.Settings.SQLUser
+                    connectionSQL.SQLPassword = Security.Crypt.Decrypt(My.Settings.SQLPass, App.Info.General.EncryptionKey)
+                    connectionSQL.SQLUpdate = Update
                 End If
 
                 conL.ConnectionList = cL
@@ -795,13 +807,6 @@ Namespace App
                 Tree.Node.ResetTree()
 
                 conL.RootTreeNode = Windows.treeForm.tvConnections.Nodes(0)
-
-                conL.UseSQL = My.Settings.UseSQLServer
-                conL.SQLHost = My.Settings.SQLHost
-                conL.SQLDatabaseName = My.Settings.SQLDatabaseName
-                conL.SQLUsername = My.Settings.SQLUser
-                conL.SQLPassword = Security.Crypt.Decrypt(My.Settings.SQLPass, App.Info.General.EncryptionKey)
-                conL.SQLUpdate = Update
 
                 conL.Load()
 
@@ -841,7 +846,7 @@ Namespace App
                         nNode.Tag = nContI
                         ctL.Add(nContI)
 
-                        Dim conL As New Config.Connections.Load
+                        Dim conL As New Config.Connections.XML
                         conL.ConnectionFileName = lD.FileNames(i)
                         conL.RootTreeNode = nNode
                         conL.Import = True
@@ -1094,28 +1099,32 @@ Namespace App
                     End If
                 End If
 
-                Dim conS As New Config.Connections.Save
+                Dim conS As Config.Connections.Base
 
                 If My.Settings.UseSQLServer = False Then
+                    conS = New Config.Connections.XML
+                    Dim connectionXML As Config.Connections.XML = conS
                     If My.Settings.LoadConsFromCustomLocation = False Then
-                        conS.ConnectionFileName = App.Info.Connections.DefaultConnectionsPath & "\" & App.Info.Connections.DefaultConnectionsFile
+                        connectionXML.ConnectionFileName = App.Info.Connections.DefaultConnectionsPath & "\" & App.Info.Connections.DefaultConnectionsFile
                     Else
-                        conS.ConnectionFileName = My.Settings.CustomConsPath
+                        connectionXML.ConnectionFileName = My.Settings.CustomConsPath
                     End If
+                Else
+                    conS = New Config.Connections.MSSQL
                 End If
 
                 conS.ConnectionList = cL
                 conS.ContainerList = ctL
-                conS.Export = False
+                'conS.Export = False
                 conS.SaveSecurity = New Security.Save(False)
                 conS.RootTreeNode = Windows.treeForm.tvConnections.Nodes(0)
 
                 If My.Settings.UseSQLServer = True Then
-                    conS.SaveFormat = Config.Connections.Save.Format.SQL
-                    conS.SQLHost = My.Settings.SQLHost
-                    conS.SQLDatabaseName = My.Settings.SQLDatabaseName
-                    conS.SQLUsername = My.Settings.SQLUser
-                    conS.SQLPassword = Security.Crypt.Decrypt(My.Settings.SQLPass, App.Info.General.EncryptionKey)
+                    Dim connectionMSSQL As Config.Connections.MSSQL = conS
+                    connectionMSSQL.SQLHost = My.Settings.SQLHost
+                    connectionMSSQL.SQLDatabaseName = My.Settings.SQLDatabaseName
+                    connectionMSSQL.SQLUsername = My.Settings.SQLUser
+                    connectionMSSQL.SQLPassword = Security.Crypt.Decrypt(My.Settings.SQLPass, App.Info.General.EncryptionKey)
                 End If
 
                 conS.Save()
@@ -1133,7 +1142,8 @@ Namespace App
         End Sub
 
         Public Shared Sub SaveConnectionsAs(ByVal SaveSecurity As Security.Save, ByVal RootNode As TreeNode)
-            Dim conS As New Config.Connections.Save
+            Dim conS As Config.Connections.Base
+            Dim fileName As String = "Unknown"
             Try
                 Dim tmrWasEnabled As Boolean
 
@@ -1144,27 +1154,28 @@ Namespace App
                     End If
                 End If
 
-
                 Dim sD As SaveFileDialog = Tools.Controls.ConnectionsSaveAsDialog
 
-                If sD.ShowDialog = System.Windows.Forms.DialogResult.OK Then
-                    conS.ConnectionFileName = sD.FileName
-                Else
+                If Not sD.ShowDialog = System.Windows.Forms.DialogResult.OK Then
                     Exit Sub
                 End If
 
                 Select Case sD.FilterIndex
                     Case 1
-                        conS.SaveFormat = Config.Connections.Save.Format.mRXML
+                        conS = New Config.Connections.XML
                     Case 2
-                        conS.SaveFormat = Config.Connections.Save.Format.mRCSV
+                        conS = New Config.Connections.CSV
                     Case 3
-                        conS.SaveFormat = Config.Connections.Save.Format.vRDCSV
+                        conS = New Config.Connections.VRDCSV
+                    Case Else
+                        Throw New System.ArgumentOutOfRangeException
                 End Select
 
+                fileName = sD.FileName
+                conS.ConnectionFileName = sD.FileName
+
                 If RootNode Is Windows.treeForm.tvConnections.Nodes(0) Then
-                    If conS.SaveFormat <> Config.Connections.Save.Format.mRXML And conS.SaveFormat <> Config.Connections.Save.Format.None Then
-                    Else
+                    If TypeOf (conS) Is Config.Connections.XML Then
                         If conS.ConnectionFileName = App.Info.Connections.DefaultConnectionsPath & "\" & App.Info.Connections.DefaultConnectionsFile Then
                             My.Settings.LoadConsFromCustomLocation = False
                         Else
@@ -1177,14 +1188,14 @@ Namespace App
                 conS.ConnectionList = cL
                 conS.ContainerList = ctL
                 If RootNode IsNot Windows.treeForm.tvConnections.Nodes(0) Then
-                    conS.Export = True
+                    'conS.Export = True
                 End If
                 conS.SaveSecurity = SaveSecurity
                 conS.RootTreeNode = RootNode
 
                 conS.Save()
             Catch ex As Exception
-                mC.AddMessage(Messages.MessageClass.ErrorMsg, String.Format(My.Resources.strConnectionsFileCouldNotSaveAs, conS.ConnectionFileName) & vbNewLine & ex.Message)
+                mC.AddMessage(Messages.MessageClass.ErrorMsg, String.Format(My.Resources.strConnectionsFileCouldNotSaveAs, fileName) & vbNewLine & ex.Message)
             End Try
 
         End Sub

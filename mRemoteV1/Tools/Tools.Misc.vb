@@ -152,19 +152,6 @@ Namespace Tools
             Return strDate
         End Function
 
-        Public Shared Function PrepareForDB(ByVal Text As String) As String
-            Text = Replace(Text, "'True'", "1", , , CompareMethod.Text)
-            Text = Replace(Text, "'False'", "0", , , CompareMethod.Text)
-
-            Return Text
-        End Function
-
-        Public Shared Function PrepareValueForDB(ByVal Text As String) As String
-            Text = Replace(Text, "'", "''", , , CompareMethod.Text)
-
-            Return Text
-        End Function
-
         Public Shared Function StringToEnum(ByVal t As Type, ByVal value As String) As Object
             For Each fI As FieldInfo In t.GetFields
                 If fI.Name = value Then
