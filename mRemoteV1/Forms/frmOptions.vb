@@ -1,4 +1,5 @@
-﻿Imports WeifenLuo.WinFormsUI.Docking
+﻿Imports System.Data.SqlClient
+Imports WeifenLuo.WinFormsUI.Docking
 Imports mRemoteNG.App.Runtime
 
 Public Class frmOptions
@@ -108,6 +109,7 @@ Public Class frmOptions
     Friend WithEvents lblExperimental As System.Windows.Forms.Label
     Friend WithEvents lblSQLDatabaseName As System.Windows.Forms.Label
     Friend WithEvents txtSQLDatabaseName As System.Windows.Forms.TextBox
+    Friend WithEvents btnSQLTestConnection As System.Windows.Forms.Button
     Private components As System.ComponentModel.IContainer
 
     Private Sub InitializeComponent()
@@ -223,6 +225,7 @@ Public Class frmOptions
         Me.lblSQLPassword = New System.Windows.Forms.Label
         Me.tabUpdates = New System.Windows.Forms.TabPage
         Me.tabAdvanced = New System.Windows.Forms.TabPage
+        Me.btnSQLTestConnection = New System.Windows.Forms.Button
         CType(Me.numPuttyWaitTime, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.numUVNCSCPort, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pnlProxy.SuspendLayout()
@@ -1170,6 +1173,7 @@ Public Class frmOptions
         '
         'tabSQLServer
         '
+        Me.tabSQLServer.Controls.Add(Me.btnSQLTestConnection)
         Me.tabSQLServer.Controls.Add(Me.lblSQLDatabaseName)
         Me.tabSQLServer.Controls.Add(Me.txtSQLDatabaseName)
         Me.tabSQLServer.Controls.Add(Me.lblExperimental)
@@ -1340,6 +1344,15 @@ Public Class frmOptions
         Me.tabAdvanced.TabIndex = 5
         Me.tabAdvanced.Text = "Advanced"
         Me.tabAdvanced.UseVisualStyleBackColor = True
+        '
+        'btnSQLTestConnection
+        '
+        Me.btnSQLTestConnection.Location = New System.Drawing.Point(24, 216)
+        Me.btnSQLTestConnection.Name = "btnSQLTestConnection"
+        Me.btnSQLTestConnection.Size = New System.Drawing.Size(112, 23)
+        Me.btnSQLTestConnection.TabIndex = 11
+        Me.btnSQLTestConnection.Text = "Test Connection"
+        Me.btnSQLTestConnection.UseVisualStyleBackColor = True
         '
         'frmOptions
         '
@@ -1910,7 +1923,40 @@ Public Class frmOptions
             End If
         End If
     End Sub
+
+    Private Sub btnSQLTestConnection_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSQLTestConnection.Click
+        Dim sqlServer As String = txtSQLServer.Text
+        Dim sqlDatabase As String = txtSQLDatabaseName.Text
+        Dim sqlUsername As String = txtSQLUsername.Text
+        Dim sqlPassword As String = txtSQLPassword.Text
+
+        Dim sqlCon As System.Data.SqlClient.SqlConnection = Nothing
+        Dim sqlRd As SqlDataReader = Nothing
+
+        Try
+            If String.IsNullOrEmpty(sqlUsername) Then
+                sqlCon = New SqlConnection("Data Source=" & sqlServer & ";Initial Catalog=" & sqlDatabase & ";User Id=" & sqlUsername & ";Password=" & sqlPassword)
+            Else
+                sqlCon = New SqlConnection("Data Source=" & sqlServer & ";Initial Catalog=" & sqlDatabase & ";Integrated Security=True")
+            End If
+
+            sqlCon.Open()
+
+            Dim sqlQuery As SqlCommand = New SqlCommand("SELECT * FROM tblRoot", sqlCon)
+            sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+
+            sqlRd.Read()
+
+            sqlRd.Close()
+            sqlCon.Close()
+
+            MessageBox.Show(Me, "The database connection was successful.", "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        Catch ex As Exception
+            MessageBox.Show(Me, ex.Message, "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Finally
+            If sqlRd IsNot Nothing And Not sqlRd.IsClosed Then sqlRd.Close()
+            If sqlCon IsNot Nothing And Not sqlCon.State = ConnectionState.Closed Then sqlCon.Close()
+        End Try
+    End Sub
 #End Region
-
-
 End Class
