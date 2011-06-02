@@ -68,7 +68,7 @@ Namespace Config
             End Property
 #End Region
 
-#Region "Public Functions"
+#Region "Public Members"
             Public Overrides Function Load() As Boolean
                 LoadFromSQL()
                 SetMainFormText("SQL Server")
@@ -78,12 +78,79 @@ Namespace Config
                 SaveToSQL()
                 SetMainFormText("SQL Server")
             End Function
+
+            Public Shared Sub TestConnection(ByVal sqlServer As String, ByVal sqlDatabaseName As String, ByVal sqlUsername As String, ByVal sqlPassword As String)
+                Dim connectionMSSQL As New Config.Connections.MSSQL
+                connectionMSSQL.SQLHost = sqlServer
+                connectionMSSQL.SQLDatabaseName = sqlDatabaseName
+                connectionMSSQL.SQLUsername = sqlUsername
+                connectionMSSQL.SQLPassword = sqlPassword
+
+                Dim sqlConnection As SqlConnection = connectionMSSQL.SqlConnection
+                Dim sqlRd As SqlDataReader = Nothing
+
+                Try
+                    sqlConnection.Open()
+
+                    Dim sqlQuery As SqlCommand = New SqlCommand("SELECT * FROM tblRoot", sqlConnection)
+                    sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+
+                    sqlRd.Read()
+
+                    sqlRd.Close()
+                    sqlConnection.Close()
+
+                    MessageBox.Show(frmMain, "The database connection was successful.", "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                Catch ex As Exception
+                    MessageBox.Show(frmMain, ex.Message, "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                Finally
+                    If sqlRd IsNot Nothing Then
+                        If Not sqlRd.IsClosed Then sqlRd.Close()
+                    End If
+                    If sqlConnection IsNot Nothing Then
+                        If Not sqlConnection.State = ConnectionState.Closed Then sqlConnection.Close()
+                    End If
+                End Try
+            End Sub
+
+            Public Shared Sub CreateDatabase(ByVal sqlServer As String, ByVal sqlDatabaseName As String, ByVal sqlUsername As String, ByVal sqlPassword As String)
+                Dim connectionMSSQL As New Config.Connections.MSSQL
+                connectionMSSQL.SQLHost = sqlServer
+                connectionMSSQL.SQLDatabaseName = sqlDatabaseName
+                connectionMSSQL.SQLUsername = sqlUsername
+                connectionMSSQL.SQLPassword = sqlPassword
+
+                Dim sqlConnection As SqlConnection = connectionMSSQL.SqlConnection
+
+                ' TODO: Do stuff
+            End Sub
+#End Region
+
+#Region "Private Properties"
+            Private _SqlConnection As SqlConnection = Nothing
+            Private ReadOnly Property SqlConnection() As SqlConnection
+                Get
+                    If _SqlConnection IsNot Nothing Then Return _SqlConnection
+
+                    Dim stringBuilder As New SqlConnectionStringBuilder
+                    stringBuilder.DataSource = SQLHost
+                    stringBuilder.InitialCatalog = SQLDatabaseName
+                    If String.IsNullOrEmpty(SQLUsername) Then
+                        stringBuilder.IntegratedSecurity = True
+                    Else
+                        stringBuilder.UserID = SQLUsername
+                        stringBuilder.Password = SQLPassword
+                    End If
+
+                    _SqlConnection = New SqlConnection(stringBuilder.ConnectionString)
+                    Return _SqlConnection
+                End Get
+            End Property
 #End Region
 
 #Region "Private Variables"
             Private confVersion As Double
 
-            Private sqlCon As SqlConnection
             Private sqlQuery As SqlCommand
             Private sqlRd As SqlDataReader
 
@@ -91,21 +158,15 @@ Namespace Config
             Private parentID As String = 0
 #End Region
 
-#Region "Private Functions"
+#Region "Private Methods"
 #Region "Load"
             Private Sub LoadFromSQL()
                 Try
                     App.Runtime.ConnectionsFileLoaded = False
 
-                    If _SQLUsername <> "" Then
-                        sqlCon = New SqlConnection("Data Source=" & _SQLHost & ";Initial Catalog=" & _SQLDatabaseName & ";User Id=" & _SQLUsername & ";Password=" & _SQLPassword)
-                    Else
-                        sqlCon = New SqlConnection("Data Source=" & _SQLHost & ";Initial Catalog=" & _SQLDatabaseName & ";Integrated Security=True")
-                    End If
+                    SqlConnection.Open()
 
-                    sqlCon.Open()
-
-                    sqlQuery = New SqlCommand("SELECT * FROM tblRoot", sqlCon)
+                    sqlQuery = New SqlCommand("SELECT * FROM tblRoot", sqlConnection)
                     sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
 
                     sqlRd.Read()
@@ -113,7 +174,7 @@ Namespace Config
                     If sqlRd.HasRows = False Then
                         App.Runtime.SaveConnections()
 
-                        sqlQuery = New SqlCommand("SELECT * FROM tblRoot", sqlCon)
+                        sqlQuery = New SqlCommand("SELECT * FROM tblRoot", sqlConnection)
                         sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
 
                         sqlRd.Read()
@@ -180,7 +241,7 @@ Namespace Config
                     App.Runtime.ConnectionsFileLoaded = True
                     'App.Runtime.Windows.treeForm.InitialRefresh()
 
-                    sqlCon.Close()
+                    sqlConnection.Close()
                 Catch ex As Exception
                     mC.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strLoadFromSqlFailed & vbNewLine & ex.Message, True)
                 End Try
@@ -210,8 +271,8 @@ Namespace Config
 
             Private Sub AddNodesFromSQL(ByVal baseNode As TreeNode)
                 Try
-                    sqlCon.Open()
-                    sqlQuery = New SqlCommand("SELECT * FROM tblCons ORDER BY PositionID ASC", sqlCon)
+                    SqlConnection.Open()
+                    sqlQuery = New SqlCommand("SELECT * FROM tblCons ORDER BY PositionID ASC", SqlConnection)
                     sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
 
                     If sqlRd.HasRows = False Then
@@ -485,13 +546,7 @@ Namespace Config
 
 #Region "Save"
             Private Sub SaveToSQL()
-                If _SQLUsername <> "" Then
-                    sqlCon = New SqlConnection("Data Source=" & _SQLHost & ";Initial Catalog=" & _SQLDatabaseName & ";User Id=" & _SQLUsername & ";Password=" & _SQLPassword)
-                Else
-                    sqlCon = New SqlConnection("Data Source=" & _SQLHost & ";Initial Catalog=" & _SQLDatabaseName & ";Integrated Security=True")
-                End If
-
-                sqlCon.Open()
+                SqlConnection.Open()
 
                 Dim tN As TreeNode
                 tN = RootTreeNode.Clone
@@ -508,14 +563,14 @@ Namespace Config
                     strProtected = Security.Crypt.Encrypt("ThisIsNotProtected", pW)
                 End If
 
-                sqlQuery = New SqlCommand("DELETE FROM tblRoot", sqlCon)
+                sqlQuery = New SqlCommand("DELETE FROM tblRoot", SqlConnection)
                 Dim sqlWr As Integer = sqlQuery.ExecuteNonQuery
 
                 Dim enCulture As CultureInfo = New CultureInfo("en-US")
-                sqlQuery = New SqlCommand("INSERT INTO tblRoot (Name, Export, Protected, ConfVersion) VALUES('" & PrepareValueForDB(tN.Text) & "', 0, '" & strProtected & "'," & App.Info.Connections.ConnectionFileVersion.ToString(enCulture) & ")", sqlCon)
+                sqlQuery = New SqlCommand("INSERT INTO tblRoot (Name, Export, Protected, ConfVersion) VALUES('" & PrepareValueForDB(tN.Text) & "', 0, '" & strProtected & "'," & App.Info.Connections.ConnectionFileVersion.ToString(enCulture) & ")", SqlConnection)
                 sqlWr = sqlQuery.ExecuteNonQuery
 
-                sqlQuery = New SqlCommand("DELETE FROM tblCons", sqlCon)
+                sqlQuery = New SqlCommand("DELETE FROM tblCons", SqlConnection)
                 sqlWr = sqlQuery.ExecuteNonQuery
 
                 Dim tNC As TreeNodeCollection
@@ -523,12 +578,12 @@ Namespace Config
 
                 SaveNodesSQL(tNC)
 
-                sqlQuery = New SqlCommand("DELETE FROM tblUpdate", sqlCon)
+                sqlQuery = New SqlCommand("DELETE FROM tblUpdate", SqlConnection)
                 sqlWr = sqlQuery.ExecuteNonQuery
-                sqlQuery = New SqlCommand("INSERT INTO tblUpdate (LastUpdate) VALUES('" & Tools.Misc.DBDate(Now) & "')", sqlCon)
+                sqlQuery = New SqlCommand("INSERT INTO tblUpdate (LastUpdate) VALUES('" & Tools.Misc.DBDate(Now) & "')", SqlConnection)
                 sqlWr = sqlQuery.ExecuteNonQuery
 
-                sqlCon.Close()
+                SqlConnection.Close()
             End Sub
 
             Private Sub SaveNodesSQL(ByVal tnc As TreeNodeCollection)
@@ -558,7 +613,7 @@ Namespace Config
                                                "InheritVNCSmartSizeMode, InheritVNCViewOnly, " & _
                                                "InheritRDGatewayUsageMethod, InheritRDGatewayHostname, InheritRDGatewayUseConnectionCredentials, InheritRDGatewayUsername, InheritRDGatewayPassword, InheritRDGatewayDomain, " & _
                                                "PositionID, ParentID, ConstantID, LastChange)" & _
-                                               "VALUES (", sqlCon)
+                                               "VALUES (", SqlConnection)
 
                     If Tree.Node.GetNodeType(node) = Tree.Node.Type.Connection Or Tree.Node.GetNodeType(node) = Tree.Node.Type.Container Then
                         'xW.WriteStartElement("Node")

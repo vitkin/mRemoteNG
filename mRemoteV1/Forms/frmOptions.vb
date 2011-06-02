@@ -110,6 +110,8 @@ Public Class frmOptions
     Friend WithEvents lblSQLDatabaseName As System.Windows.Forms.Label
     Friend WithEvents txtSQLDatabaseName As System.Windows.Forms.TextBox
     Friend WithEvents btnSQLTestConnection As System.Windows.Forms.Button
+    Friend WithEvents lblSQLUseIntegratedAuthentication As System.Windows.Forms.Label
+    Friend WithEvents btnSQLCreateDatabase As System.Windows.Forms.Button
     Private components As System.ComponentModel.IContainer
 
     Private Sub InitializeComponent()
@@ -212,6 +214,8 @@ Public Class frmOptions
         Me.txtCredentialsUsername = New System.Windows.Forms.TextBox
         Me.lblCredentialsDomain = New System.Windows.Forms.Label
         Me.tabSQLServer = New System.Windows.Forms.TabPage
+        Me.lblSQLUseIntegratedAuthentication = New System.Windows.Forms.Label
+        Me.btnSQLTestConnection = New System.Windows.Forms.Button
         Me.lblSQLDatabaseName = New System.Windows.Forms.Label
         Me.txtSQLDatabaseName = New System.Windows.Forms.TextBox
         Me.lblExperimental = New System.Windows.Forms.Label
@@ -225,7 +229,7 @@ Public Class frmOptions
         Me.lblSQLPassword = New System.Windows.Forms.Label
         Me.tabUpdates = New System.Windows.Forms.TabPage
         Me.tabAdvanced = New System.Windows.Forms.TabPage
-        Me.btnSQLTestConnection = New System.Windows.Forms.Button
+        Me.btnSQLCreateDatabase = New System.Windows.Forms.Button
         CType(Me.numPuttyWaitTime, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.numUVNCSCPort, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pnlProxy.SuspendLayout()
@@ -987,7 +991,7 @@ Public Class frmOptions
         Me.tcTabControl.SelectedIndex = 0
         Me.tcTabControl.Size = New System.Drawing.Size(610, 489)
         Me.tcTabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed
-        Me.tcTabControl.TabIndex = 1
+        Me.tcTabControl.TabIndex = 0
         Me.tcTabControl.TabStop = False
         '
         'tabStartupExit
@@ -1173,6 +1177,8 @@ Public Class frmOptions
         '
         'tabSQLServer
         '
+        Me.tabSQLServer.Controls.Add(Me.btnSQLCreateDatabase)
+        Me.tabSQLServer.Controls.Add(Me.lblSQLUseIntegratedAuthentication)
         Me.tabSQLServer.Controls.Add(Me.btnSQLTestConnection)
         Me.tabSQLServer.Controls.Add(Me.lblSQLDatabaseName)
         Me.tabSQLServer.Controls.Add(Me.txtSQLDatabaseName)
@@ -1192,11 +1198,30 @@ Public Class frmOptions
         Me.tabSQLServer.Text = "SQL Server"
         Me.tabSQLServer.UseVisualStyleBackColor = True
         '
+        'lblSQLUseIntegratedAuthentication
+        '
+        Me.lblSQLUseIntegratedAuthentication.AutoSize = True
+        Me.lblSQLUseIntegratedAuthentication.Enabled = False
+        Me.lblSQLUseIntegratedAuthentication.Location = New System.Drawing.Point(272, 157)
+        Me.lblSQLUseIntegratedAuthentication.Name = "lblSQLUseIntegratedAuthentication"
+        Me.lblSQLUseIntegratedAuthentication.Size = New System.Drawing.Size(221, 13)
+        Me.lblSQLUseIntegratedAuthentication.TabIndex = 9
+        Me.lblSQLUseIntegratedAuthentication.Text = "Leave blank to use integrated authentication."
+        '
+        'btnSQLTestConnection
+        '
+        Me.btnSQLTestConnection.Location = New System.Drawing.Point(26, 219)
+        Me.btnSQLTestConnection.Name = "btnSQLTestConnection"
+        Me.btnSQLTestConnection.Size = New System.Drawing.Size(112, 23)
+        Me.btnSQLTestConnection.TabIndex = 12
+        Me.btnSQLTestConnection.Text = "Test Connection"
+        Me.btnSQLTestConnection.UseVisualStyleBackColor = True
+        '
         'lblSQLDatabaseName
         '
         Me.lblSQLDatabaseName.AutoSize = True
         Me.lblSQLDatabaseName.Enabled = False
-        Me.lblSQLDatabaseName.Location = New System.Drawing.Point(23, 132)
+        Me.lblSQLDatabaseName.Location = New System.Drawing.Point(23, 131)
         Me.lblSQLDatabaseName.Name = "lblSQLDatabaseName"
         Me.lblSQLDatabaseName.Size = New System.Drawing.Size(56, 13)
         Me.lblSQLDatabaseName.TabIndex = 5
@@ -1239,7 +1264,7 @@ Public Class frmOptions
         '
         Me.lblSQLUsername.AutoSize = True
         Me.lblSQLUsername.Enabled = False
-        Me.lblSQLUsername.Location = New System.Drawing.Point(23, 158)
+        Me.lblSQLUsername.Location = New System.Drawing.Point(23, 157)
         Me.lblSQLUsername.Name = "lblSQLUsername"
         Me.lblSQLUsername.Size = New System.Drawing.Size(58, 13)
         Me.lblSQLUsername.TabIndex = 7
@@ -1249,10 +1274,10 @@ Public Class frmOptions
         '
         Me.txtSQLPassword.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
         Me.txtSQLPassword.Enabled = False
-        Me.txtSQLPassword.Location = New System.Drawing.Point(113, 182)
+        Me.txtSQLPassword.Location = New System.Drawing.Point(113, 181)
         Me.txtSQLPassword.Name = "txtSQLPassword"
         Me.txtSQLPassword.Size = New System.Drawing.Size(153, 20)
-        Me.txtSQLPassword.TabIndex = 10
+        Me.txtSQLPassword.TabIndex = 11
         Me.txtSQLPassword.UseSystemPasswordChar = True
         '
         'lblSQLInfo
@@ -1273,7 +1298,7 @@ Public Class frmOptions
         '
         Me.lblSQLServer.AutoSize = True
         Me.lblSQLServer.Enabled = False
-        Me.lblSQLServer.Location = New System.Drawing.Point(23, 106)
+        Me.lblSQLServer.Location = New System.Drawing.Point(23, 105)
         Me.lblSQLServer.Name = "lblSQLServer"
         Me.lblSQLServer.Size = New System.Drawing.Size(65, 13)
         Me.lblSQLServer.TabIndex = 3
@@ -1301,10 +1326,10 @@ Public Class frmOptions
         '
         Me.lblSQLPassword.AutoSize = True
         Me.lblSQLPassword.Enabled = False
-        Me.lblSQLPassword.Location = New System.Drawing.Point(23, 185)
+        Me.lblSQLPassword.Location = New System.Drawing.Point(23, 183)
         Me.lblSQLPassword.Name = "lblSQLPassword"
         Me.lblSQLPassword.Size = New System.Drawing.Size(56, 13)
-        Me.lblSQLPassword.TabIndex = 9
+        Me.lblSQLPassword.TabIndex = 10
         Me.lblSQLPassword.Text = "Password:"
         '
         'tabUpdates
@@ -1345,14 +1370,14 @@ Public Class frmOptions
         Me.tabAdvanced.Text = "Advanced"
         Me.tabAdvanced.UseVisualStyleBackColor = True
         '
-        'btnSQLTestConnection
+        'btnSQLCreateDatabase
         '
-        Me.btnSQLTestConnection.Location = New System.Drawing.Point(24, 216)
-        Me.btnSQLTestConnection.Name = "btnSQLTestConnection"
-        Me.btnSQLTestConnection.Size = New System.Drawing.Size(112, 23)
-        Me.btnSQLTestConnection.TabIndex = 11
-        Me.btnSQLTestConnection.Text = "Test Connection"
-        Me.btnSQLTestConnection.UseVisualStyleBackColor = True
+        Me.btnSQLCreateDatabase.Location = New System.Drawing.Point(26, 260)
+        Me.btnSQLCreateDatabase.Name = "btnSQLCreateDatabase"
+        Me.btnSQLCreateDatabase.Size = New System.Drawing.Size(112, 23)
+        Me.btnSQLCreateDatabase.TabIndex = 13
+        Me.btnSQLCreateDatabase.Text = "Create Database"
+        Me.btnSQLCreateDatabase.UseVisualStyleBackColor = True
         '
         'frmOptions
         '
@@ -1832,6 +1857,7 @@ Public Class frmOptions
         Me.lblSQLServer.Enabled = chkUseSQLServer.Checked
         Me.lblSQLDatabaseName.Enabled = chkUseSQLServer.Checked
         Me.lblSQLUsername.Enabled = chkUseSQLServer.Checked
+        Me.lblSQLUseIntegratedAuthentication.Enabled = chkUseSQLServer.Checked
         Me.lblSQLPassword.Enabled = chkUseSQLServer.Checked
         Me.txtSQLServer.Enabled = chkUseSQLServer.Checked
         Me.txtSQLDatabaseName.Enabled = chkUseSQLServer.Checked
@@ -1925,38 +1951,11 @@ Public Class frmOptions
     End Sub
 
     Private Sub btnSQLTestConnection_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSQLTestConnection.Click
-        Dim sqlServer As String = txtSQLServer.Text
-        Dim sqlDatabase As String = txtSQLDatabaseName.Text
-        Dim sqlUsername As String = txtSQLUsername.Text
-        Dim sqlPassword As String = txtSQLPassword.Text
+        Config.Connections.MSSQL.TestConnection(sqlServer:=txtSQLServer.Text, sqlDatabaseName:=txtSQLDatabaseName.Text, sqlUsername:=txtSQLUsername.Text, sqlPassword:=txtSQLPassword.Text)
+    End Sub
 
-        Dim sqlCon As System.Data.SqlClient.SqlConnection = Nothing
-        Dim sqlRd As SqlDataReader = Nothing
-
-        Try
-            If String.IsNullOrEmpty(sqlUsername) Then
-                sqlCon = New SqlConnection("Data Source=" & sqlServer & ";Initial Catalog=" & sqlDatabase & ";User Id=" & sqlUsername & ";Password=" & sqlPassword)
-            Else
-                sqlCon = New SqlConnection("Data Source=" & sqlServer & ";Initial Catalog=" & sqlDatabase & ";Integrated Security=True")
-            End If
-
-            sqlCon.Open()
-
-            Dim sqlQuery As SqlCommand = New SqlCommand("SELECT * FROM tblRoot", sqlCon)
-            sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
-
-            sqlRd.Read()
-
-            sqlRd.Close()
-            sqlCon.Close()
-
-            MessageBox.Show(Me, "The database connection was successful.", "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
-        Catch ex As Exception
-            MessageBox.Show(Me, ex.Message, "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        Finally
-            If sqlRd IsNot Nothing And Not sqlRd.IsClosed Then sqlRd.Close()
-            If sqlCon IsNot Nothing And Not sqlCon.State = ConnectionState.Closed Then sqlCon.Close()
-        End Try
+    Private Sub btnSQLCreateDatabase_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSQLCreateDatabase.Click
+        Config.Connections.MSSQL.CreateDatabase(sqlServer:=txtSQLServer.Text, sqlDatabaseName:=txtSQLDatabaseName.Text, sqlUsername:=txtSQLUsername.Text, sqlPassword:=txtSQLPassword.Text)
     End Sub
 #End Region
 End Class
