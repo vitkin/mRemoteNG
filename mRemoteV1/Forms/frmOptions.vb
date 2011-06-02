@@ -1951,11 +1951,23 @@ Public Class frmOptions
     End Sub
 
     Private Sub btnSQLTestConnection_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSQLTestConnection.Click
-        Config.Connections.MSSQL.TestConnection(sqlServer:=txtSQLServer.Text, sqlDatabaseName:=txtSQLDatabaseName.Text, sqlUsername:=txtSQLUsername.Text, sqlPassword:=txtSQLPassword.Text)
+        Dim mssql As New Config.Connections.MSSQL
+        mssql.SQLHost = txtSQLServer.Text
+        mssql.SQLDatabaseName = txtSQLDatabaseName.Text
+        mssql.SQLUsername = txtSQLUsername.Text
+        mssql.SQLPassword = txtSQLPassword.Text
+
+        mssql.TestConnection()
     End Sub
 
     Private Sub btnSQLCreateDatabase_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSQLCreateDatabase.Click
-        Config.Connections.MSSQL.CreateDatabase(sqlServer:=txtSQLServer.Text, sqlDatabaseName:=txtSQLDatabaseName.Text, sqlUsername:=txtSQLUsername.Text, sqlPassword:=txtSQLPassword.Text)
+        Dim mssql As New Config.Connections.MSSQL
+        mssql.SQLHost = txtSQLServer.Text
+        mssql.SQLDatabaseName = txtSQLDatabaseName.Text
+        mssql.SQLUsername = txtSQLUsername.Text
+        mssql.SQLPassword = txtSQLPassword.Text
+
+        mssql.CreateDatabase()
     End Sub
 #End Region
 End Class

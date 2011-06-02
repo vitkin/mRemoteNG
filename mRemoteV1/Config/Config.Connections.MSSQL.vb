@@ -79,26 +79,19 @@ Namespace Config
                 SetMainFormText("SQL Server")
             End Function
 
-            Public Shared Sub TestConnection(ByVal sqlServer As String, ByVal sqlDatabaseName As String, ByVal sqlUsername As String, ByVal sqlPassword As String)
-                Dim connectionMSSQL As New Config.Connections.MSSQL
-                connectionMSSQL.SQLHost = sqlServer
-                connectionMSSQL.SQLDatabaseName = sqlDatabaseName
-                connectionMSSQL.SQLUsername = sqlUsername
-                connectionMSSQL.SQLPassword = sqlPassword
-
-                Dim sqlConnection As SqlConnection = connectionMSSQL.SqlConnection
+            Public Sub TestConnection()
                 Dim sqlRd As SqlDataReader = Nothing
 
                 Try
-                    sqlConnection.Open()
+                    SqlConnection.Open()
 
-                    Dim sqlQuery As SqlCommand = New SqlCommand("SELECT * FROM tblRoot", sqlConnection)
+                    Dim sqlQuery As SqlCommand = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
                     sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
 
                     sqlRd.Read()
 
                     sqlRd.Close()
-                    sqlConnection.Close()
+                    SqlConnection.Close()
 
                     MessageBox.Show(frmMain, "The database connection was successful.", "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Catch ex As Exception
@@ -107,22 +100,22 @@ Namespace Config
                     If sqlRd IsNot Nothing Then
                         If Not sqlRd.IsClosed Then sqlRd.Close()
                     End If
-                    If sqlConnection IsNot Nothing Then
-                        If Not sqlConnection.State = ConnectionState.Closed Then sqlConnection.Close()
+                    If SqlConnection IsNot Nothing Then
+                        If Not SqlConnection.State = ConnectionState.Closed Then SqlConnection.Close()
                     End If
                 End Try
             End Sub
 
-            Public Shared Sub CreateDatabase(ByVal sqlServer As String, ByVal sqlDatabaseName As String, ByVal sqlUsername As String, ByVal sqlPassword As String)
-                Dim connectionMSSQL As New Config.Connections.MSSQL
-                connectionMSSQL.SQLHost = sqlServer
-                connectionMSSQL.SQLDatabaseName = sqlDatabaseName
-                connectionMSSQL.SQLUsername = sqlUsername
-                connectionMSSQL.SQLPassword = sqlPassword
-
-                Dim sqlConnection As SqlConnection = connectionMSSQL.SqlConnection
-
+            Public Sub CreateDatabase()
                 ' TODO: Do stuff
+            End Sub
+
+            Public Sub MigrateDatabase()
+                If Not OpenConnection() Then
+
+                End If
+
+                CloseConnection()
             End Sub
 #End Region
 
@@ -146,6 +139,25 @@ Namespace Config
                     Return _SqlConnection
                 End Get
             End Property
+
+            Private Property DatabaseVersion() As System.Version
+                Get
+                    OpenConnection()
+
+                    sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
+                    sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+                    sqlRd.Read()
+
+                    Dim version As System.Version = sqlRd.Item("confVersion")
+
+                    CloseConnection()
+
+                    Return version
+                End Get
+                Set(ByVal value)
+
+                End Set
+            End Property
 #End Region
 
 #Region "Private Variables"
@@ -159,6 +171,29 @@ Namespace Config
 #End Region
 
 #Region "Private Methods"
+
+#Region "SQL Server Connection"
+            Private Function OpenConnection() As Boolean
+                If SqlConnection Is Nothing Then Return False
+
+                ' Already open?
+                If Not (SqlConnection.State = ConnectionState.Closed Or SqlConnection.State = ConnectionState.Broken) Then Return True
+
+                Try
+                    SqlConnection.Open()
+                    Return True
+                Catch ex As System.Exception
+                    Return False
+                End Try
+            End Function
+
+            Private Sub CloseConnection()
+                If SqlConnection Is Nothing Then Return
+                If SqlConnection.State = ConnectionState.Closed Then Return
+                SqlConnection.Close()
+            End Sub
+#End Region
+
 #Region "Load"
             Private Sub LoadFromSQL()
                 Try
@@ -166,7 +201,7 @@ Namespace Config
 
                     SqlConnection.Open()
 
-                    sqlQuery = New SqlCommand("SELECT * FROM tblRoot", sqlConnection)
+                    sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
                     sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
 
                     sqlRd.Read()
@@ -174,7 +209,7 @@ Namespace Config
                     If sqlRd.HasRows = False Then
                         App.Runtime.SaveConnections()
 
-                        sqlQuery = New SqlCommand("SELECT * FROM tblRoot", sqlConnection)
+                        sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
                         sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
 
                         sqlRd.Read()
@@ -241,7 +276,7 @@ Namespace Config
                     App.Runtime.ConnectionsFileLoaded = True
                     'App.Runtime.Windows.treeForm.InitialRefresh()
 
-                    sqlConnection.Close()
+                    SqlConnection.Close()
                 Catch ex As Exception
                     mC.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strLoadFromSqlFailed & vbNewLine & ex.Message, True)
                 End Try
