@@ -80,29 +80,22 @@ Namespace Config
             End Function
 
             Public Sub TestConnection()
-                Dim sqlRd As SqlDataReader = Nothing
-
+                Dim sqlDataReader As SqlDataReader = Nothing
                 Try
-                    SqlConnection.Open()
+                    OpenConnection()
 
                     Dim sqlQuery As SqlCommand = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
-                    sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
-
-                    sqlRd.Read()
-
-                    sqlRd.Close()
-                    SqlConnection.Close()
+                    sqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+                    sqlDataReader.Read()
 
                     MessageBox.Show(frmMain, "The database connection was successful.", "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Catch ex As Exception
                     MessageBox.Show(frmMain, ex.Message, "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Finally
-                    If sqlRd IsNot Nothing Then
-                        If Not sqlRd.IsClosed Then sqlRd.Close()
+                    If SqlDataReader IsNot Nothing Then
+                        If Not SqlDataReader.IsClosed Then SqlDataReader.Close()
                     End If
-                    If SqlConnection IsNot Nothing Then
-                        If Not SqlConnection.State = ConnectionState.Closed Then SqlConnection.Close()
-                    End If
+                    CloseConnection()
                 End Try
             End Sub
 
@@ -145,16 +138,17 @@ Namespace Config
                     OpenConnection()
 
                     sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
-                    sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
-                    sqlRd.Read()
+                    Dim sqlDataReader As SqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+                    sqlDataReader.Read()
 
-                    Dim version As System.Version = sqlRd.Item("confVersion")
+                    Dim version As System.Version = sqlDataReader.Item("confVersion")
 
+                    sqlDataReader.Close()
                     CloseConnection()
 
                     Return version
                 End Get
-                Set(ByVal value)
+                Set(ByVal value As System.Version)
 
                 End Set
             End Property
@@ -164,7 +158,7 @@ Namespace Config
             Private confVersion As Double
 
             Private sqlQuery As SqlCommand
-            Private sqlRd As SqlDataReader
+            'Private sqlDataReader As SqlDataReader
 
             Private gIndex As Integer = 0
             Private parentID As String = 0
@@ -202,24 +196,23 @@ Namespace Config
                     SqlConnection.Open()
 
                     sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
-                    sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+                    Dim sqlDataReader As SqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
 
-                    sqlRd.Read()
+                    sqlDataReader.Read()
 
-                    If sqlRd.HasRows = False Then
+                    If sqlDataReader.HasRows = False Then
                         App.Runtime.SaveConnections()
 
                         sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
-                        sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
-
-                        sqlRd.Read()
+                        SqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+                        SqlDataReader.Read()
                     End If
 
                     Dim enCulture As CultureInfo = New CultureInfo("en-US")
-                    Me.confVersion = Convert.ToDouble(sqlRd.Item("confVersion"), enCulture)
+                    Me.confVersion = Convert.ToDouble(sqlDataReader.Item("confVersion"), enCulture)
 
                     Dim rootNode As TreeNode
-                    rootNode = New TreeNode(sqlRd.Item("Name"))
+                    rootNode = New TreeNode(sqlDataReader.Item("Name"))
 
                     Dim rInfo As New Root.Info(Root.Info.RootType.Connection)
                     rInfo.Name = rootNode.Text
@@ -229,8 +222,8 @@ Namespace Config
                     rootNode.ImageIndex = Images.Enums.TreeImage.Root
                     rootNode.SelectedImageIndex = Images.Enums.TreeImage.Root
 
-                    If Security.Crypt.Decrypt(sqlRd.Item("Protected"), pW) <> "ThisIsNotProtected" Then
-                        If Authenticate(sqlRd.Item("Protected"), False, rInfo) = False Then
+                    If Security.Crypt.Decrypt(sqlDataReader.Item("Protected"), pW) <> "ThisIsNotProtected" Then
+                        If Authenticate(sqlDataReader.Item("Protected"), False, rInfo) = False Then
                             My.Settings.LoadConsFromCustomLocation = False
                             My.Settings.CustomConsPath = ""
                             rootNode.Remove()
@@ -243,7 +236,7 @@ Namespace Config
                     'Me._RootTreeNode.ImageIndex = Images.Enums.TreeImage.Root
                     'Me._RootTreeNode.SelectedImageIndex = Images.Enums.TreeImage.Root
 
-                    sqlRd.Close()
+                    sqlDataReader.Close()
 
                     ' SECTION 3. Populate the TreeView with the DOM nodes.
                     AddNodesFromSQL(rootNode)
@@ -308,20 +301,20 @@ Namespace Config
                 Try
                     SqlConnection.Open()
                     sqlQuery = New SqlCommand("SELECT * FROM tblCons ORDER BY PositionID ASC", SqlConnection)
-                    sqlRd = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+                    Dim sqlDataReader As SqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
 
-                    If sqlRd.HasRows = False Then
+                    If sqlDataReader.HasRows = False Then
                         Exit Sub
                     End If
 
                     Dim tNode As TreeNode
 
-                    While sqlRd.Read
-                        tNode = New TreeNode(sqlRd.Item("Name"))
+                    While sqlDataReader.Read
+                        tNode = New TreeNode(sqlDataReader.Item("Name"))
                         'baseNode.Nodes.Add(tNode)
 
-                        If Tree.Node.GetNodeTypeFromString(sqlRd.Item("Type")) = Tree.Node.Type.Connection Then
-                            Dim conI As Connection.Info = GetConnectionInfoFromSQL()
+                        If Tree.Node.GetNodeTypeFromString(sqlDataReader.Item("Type")) = Tree.Node.Type.Connection Then
+                            Dim conI As Connection.Info = GetConnectionInfoFromSQL(sqlDataReader)
                             conI.TreeNode = tNode
                             'conI.Parent = prevCont 'NEW
 
@@ -357,7 +350,7 @@ Namespace Config
                                 tNode.ImageIndex = Images.Enums.TreeImage.ConnectionClosed
                                 tNode.SelectedImageIndex = Images.Enums.TreeImage.ConnectionClosed
                             End If
-                        ElseIf Tree.Node.GetNodeTypeFromString(sqlRd.Item("Type")) = Tree.Node.Type.Container Then
+                        ElseIf Tree.Node.GetNodeTypeFromString(sqlDataReader.Item("Type")) = Tree.Node.Type.Container Then
                             Dim contI As New Container.Info
                             'If tNode.Parent IsNot Nothing Then
                             '    If Tree.Node.GetNodeType(tNode.Parent) = Tree.Node.Type.Container Then
@@ -367,11 +360,11 @@ Namespace Config
                             'prevCont = contI 'NEW
                             contI.TreeNode = tNode
 
-                            contI.Name = sqlRd.Item("Name")
+                            contI.Name = sqlDataReader.Item("Name")
 
                             Dim conI As Connection.Info
 
-                            conI = GetConnectionInfoFromSQL()
+                            conI = GetConnectionInfoFromSQL(sqlDataReader)
 
                             conI.Parent = contI
                             conI.IsContainer = True
@@ -387,7 +380,7 @@ Namespace Config
                                     selNode = tNode
                                 End If
                             Else
-                                If sqlRd.Item("Expanded") = True Then
+                                If sqlDataReader.Item("Expanded") = True Then
                                     contI.IsExpanded = True
                                 Else
                                     contI.IsExpanded = False
@@ -402,8 +395,8 @@ Namespace Config
                             tNode.SelectedImageIndex = Images.Enums.TreeImage.Container
                         End If
 
-                        If sqlRd.Item("ParentID") <> 0 Then
-                            Dim pNode As TreeNode = Tree.Node.GetNodeFromConstantID(sqlRd.Item("ParentID"))
+                        If sqlDataReader.Item("ParentID") <> 0 Then
+                            Dim pNode As TreeNode = Tree.Node.GetNodeFromConstantID(sqlDataReader.Item("ParentID"))
 
                             If pNode IsNot Nothing Then
                                 pNode.Nodes.Add(tNode)
@@ -427,11 +420,11 @@ Namespace Config
                 End Try
             End Sub
 
-            Private Function GetConnectionInfoFromSQL() As Connection.Info
+            Private Function GetConnectionInfoFromSQL(ByRef sqlDataReader As SqlDataReader) As Connection.Info
                 Try
                     Dim conI As New Connection.Info
 
-                    With sqlRd
+                    With SqlDataReader
                         conI.PositionID = .Item("PositionID")
                         conI.ConstantID = .Item("ConstantID")
                         conI.Name = .Item("Name")
