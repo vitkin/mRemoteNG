@@ -14,7 +14,7 @@ Namespace App
 
         Public Shared cL As Connection.List
         Public Shared prevCL As Connection.List
-        Public Shared ctL As Container.List
+        Public Shared containerList As Container.List
         Public Shared prevCTL As Container.List
         Public Shared crL As Credential.List
         Public Shared prevCRL As Credential.List
@@ -674,7 +674,7 @@ Namespace App
         Public Shared Sub NewConnections(ByVal filename As String)
             Try
                 cL = New Connection.List
-                ctL = New Container.List
+                containerList = New Container.List
 
                 Dim conL As New Config.Connections.XML
 
@@ -696,7 +696,7 @@ Namespace App
                 xW.Close()
 
                 conL.ConnectionList = cL
-                conL.ContainerList = ctL
+                conL.ContainerList = containerList
                 conL.Import = False
 
                 Tree.Node.ResetTree()
@@ -736,13 +736,13 @@ Namespace App
                     End If
                 End If
 
-                If cL IsNot Nothing And ctL IsNot Nothing Then
+                If cL IsNot Nothing And containerList IsNot Nothing Then
                     prevCL = cL.Copy
-                    prevCTL = ctL.Copy
+                    prevCTL = containerList.Copy
                 End If
 
                 cL = New Connection.List
-                ctL = New Container.List
+                containerList = New Container.List
 
                 Dim conL As Config.Connections.Base
 
@@ -811,7 +811,7 @@ Namespace App
                 End If
 
                 conL.ConnectionList = cL
-                conL.ContainerList = ctL
+                conL.ContainerList = containerList
 
                 If prevCL IsNot Nothing And prevCTL IsNot Nothing Then
                     conL.PreviousConnectionList = prevCL
@@ -864,14 +864,14 @@ Namespace App
                         End If
 
                         nNode.Tag = nContI
-                        ctL.Add(nContI)
+                        containerList.Add(nContI)
 
                         Dim conL As New Config.Connections.XML
                         conL.ConnectionFileName = lD.FileNames(i)
                         conL.RootTreeNode = nNode
                         conL.Import = True
                         conL.ConnectionList = App.Runtime.cL
-                        conL.ContainerList = App.Runtime.ctL
+                        conL.ContainerList = App.Runtime.containerList
 
                         conL.Load()
 
@@ -1134,7 +1134,7 @@ Namespace App
                 End If
 
                 conS.ConnectionList = cL
-                conS.ContainerList = ctL
+                conS.ContainerList = containerList
                 'conS.Export = False
                 conS.SaveSecurity = New Security.Save(False)
                 conS.RootTreeNode = Windows.treeForm.tvConnections.Nodes(0)
@@ -1206,7 +1206,7 @@ Namespace App
                 End If
 
                 conS.ConnectionList = cL
-                conS.ContainerList = ctL
+                conS.ContainerList = containerList
                 If RootNode IsNot Windows.treeForm.tvConnections.Nodes(0) Then
                     'conS.Export = True
                 End If
