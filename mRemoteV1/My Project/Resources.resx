@@ -2352,4 +2352,7 @@ Error Description: {1}</value>
   <data name="strErrorBadDatabaseVersion" xml:space="preserve">
     <value>The database version {0} is not compatible with this version of {1}.</value>
   </data>
+  <data name="CreateTables" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\CreateTables.sql;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
 </root>

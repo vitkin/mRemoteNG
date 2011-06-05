@@ -100,16 +100,17 @@ Namespace Config
                 End Try
             End Sub
 
-            Public Sub CreateDatabase()
-                ' TODO: Do stuff
-            End Sub
+            Public Sub CreateTables()
+                Try
+                    OpenConnection()
 
-            Public Sub MigrateDatabase()
-                If Not OpenConnection() Then
-
-                End If
-
-                CloseConnection()
+                    Dim sqlQuery As New SqlCommand(My.Resources.CreateTables, SqlConnection)
+                    sqlQuery.ExecuteNonQuery()
+                Catch ex As Exception
+                    Throw
+                Finally
+                    CloseConnection()
+                End Try
             End Sub
 #End Region
 

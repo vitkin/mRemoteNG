@@ -111,7 +111,7 @@ Public Class frmOptions
     Friend WithEvents txtSQLDatabaseName As System.Windows.Forms.TextBox
     Friend WithEvents btnSQLTestConnection As System.Windows.Forms.Button
     Friend WithEvents lblSQLUseIntegratedAuthentication As System.Windows.Forms.Label
-    Friend WithEvents btnSQLCreateDatabase As System.Windows.Forms.Button
+    Friend WithEvents btnSQLCreateTables As System.Windows.Forms.Button
     Private components As System.ComponentModel.IContainer
 
     Private Sub InitializeComponent()
@@ -214,6 +214,7 @@ Public Class frmOptions
         Me.txtCredentialsUsername = New System.Windows.Forms.TextBox
         Me.lblCredentialsDomain = New System.Windows.Forms.Label
         Me.tabSQLServer = New System.Windows.Forms.TabPage
+        Me.btnSQLCreateTables = New System.Windows.Forms.Button
         Me.lblSQLUseIntegratedAuthentication = New System.Windows.Forms.Label
         Me.btnSQLTestConnection = New System.Windows.Forms.Button
         Me.lblSQLDatabaseName = New System.Windows.Forms.Label
@@ -229,7 +230,6 @@ Public Class frmOptions
         Me.lblSQLPassword = New System.Windows.Forms.Label
         Me.tabUpdates = New System.Windows.Forms.TabPage
         Me.tabAdvanced = New System.Windows.Forms.TabPage
-        Me.btnSQLCreateDatabase = New System.Windows.Forms.Button
         CType(Me.numPuttyWaitTime, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.numUVNCSCPort, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pnlProxy.SuspendLayout()
@@ -1177,7 +1177,7 @@ Public Class frmOptions
         '
         'tabSQLServer
         '
-        Me.tabSQLServer.Controls.Add(Me.btnSQLCreateDatabase)
+        Me.tabSQLServer.Controls.Add(Me.btnSQLCreateTables)
         Me.tabSQLServer.Controls.Add(Me.lblSQLUseIntegratedAuthentication)
         Me.tabSQLServer.Controls.Add(Me.btnSQLTestConnection)
         Me.tabSQLServer.Controls.Add(Me.lblSQLDatabaseName)
@@ -1197,6 +1197,15 @@ Public Class frmOptions
         Me.tabSQLServer.TabIndex = 6
         Me.tabSQLServer.Text = "SQL Server"
         Me.tabSQLServer.UseVisualStyleBackColor = True
+        '
+        'btnSQLCreateTables
+        '
+        Me.btnSQLCreateTables.Location = New System.Drawing.Point(26, 260)
+        Me.btnSQLCreateTables.Name = "btnSQLCreateTables"
+        Me.btnSQLCreateTables.Size = New System.Drawing.Size(112, 23)
+        Me.btnSQLCreateTables.TabIndex = 13
+        Me.btnSQLCreateTables.Text = "Create Tables"
+        Me.btnSQLCreateTables.UseVisualStyleBackColor = True
         '
         'lblSQLUseIntegratedAuthentication
         '
@@ -1369,15 +1378,6 @@ Public Class frmOptions
         Me.tabAdvanced.TabIndex = 5
         Me.tabAdvanced.Text = "Advanced"
         Me.tabAdvanced.UseVisualStyleBackColor = True
-        '
-        'btnSQLCreateDatabase
-        '
-        Me.btnSQLCreateDatabase.Location = New System.Drawing.Point(26, 260)
-        Me.btnSQLCreateDatabase.Name = "btnSQLCreateDatabase"
-        Me.btnSQLCreateDatabase.Size = New System.Drawing.Size(112, 23)
-        Me.btnSQLCreateDatabase.TabIndex = 13
-        Me.btnSQLCreateDatabase.Text = "Create Database"
-        Me.btnSQLCreateDatabase.UseVisualStyleBackColor = True
         '
         'frmOptions
         '
@@ -1931,14 +1931,19 @@ Public Class frmOptions
         mssql.TestConnection()
     End Sub
 
-    Private Sub btnSQLCreateDatabase_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSQLCreateDatabase.Click
+    Private Sub btnSQLCreateTables_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnSQLCreateTables.Click
         Dim mssql As New Config.Connections.MSSQL
         mssql.SQLHost = txtSQLServer.Text
         mssql.SQLDatabaseName = txtSQLDatabaseName.Text
         mssql.SQLUsername = txtSQLUsername.Text
         mssql.SQLPassword = txtSQLPassword.Text
 
-        mssql.CreateDatabase()
+        Try
+            mssql.CreateTables()
+            MessageBox.Show("The database tables were successfully created.", "Create Tables", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        Catch ex As Exception
+            MessageBox.Show(String.Format("CreateTables Failed. {0}", ex.Message), "Create Tables", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
 #End Region
 End Class

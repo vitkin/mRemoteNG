@@ -221,6 +221,25 @@ Namespace My.Resources
             End Get
         End Property
         
+        '''<summary>
+        '''  Looks up a localized string similar to CREATE TABLE tblCons (
+        '''	ID int IDENTITY (1001, 1) NOT NULL,
+        '''	ConstantID varchar (128) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        '''	PositionID int NOT NULL,
+        '''	ParentID varchar (128) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        '''	LastChange datetime NOT NULL,
+        '''	Name varchar (128) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+        '''	Type varchar (32) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+        '''	Expanded bit NOT NULL,
+        '''	Description varchar (1024) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
+        '''	Icon varchar (128) C [rest of string was truncated]&quot;;.
+        '''</summary>
+        Friend ReadOnly Property CreateTables() As String
+            Get
+                Return ResourceManager.GetString("CreateTables", resourceCulture)
+            End Get
+        End Property
+        
         Friend ReadOnly Property Delete() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("Delete", resourceCulture)
