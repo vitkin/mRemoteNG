@@ -192,7 +192,7 @@ Namespace Config
 #Region "Load"
             Private Sub LoadFromSQL()
                 Try
-                    App.Runtime.ConnectionsFileLoaded = False
+                    App.Runtime.IsConnectionsFileLoaded = False
 
                     SqlConnection.Open()
 
@@ -267,12 +267,12 @@ Namespace Config
                     AddNodeToTree(rootNode)
                     SetSelectedNode(selNode)
 
-                    App.Runtime.ConnectionsFileLoaded = True
+                    App.Runtime.IsConnectionsFileLoaded = True
                     'App.Runtime.Windows.treeForm.InitialRefresh()
 
                     SqlConnection.Close()
                 Catch ex As Exception
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strLoadFromSqlFailed & vbNewLine & ex.Message, True)
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strLoadFromSqlFailed & vbNewLine & ex.Message, True)
                 End Try
             End Sub
 
@@ -417,7 +417,7 @@ Namespace Config
                         'AddNodesFromSQL(tNode)
                     End While
                 Catch ex As Exception
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strAddNodesFromSqlFailed & vbNewLine & ex.Message, True)
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strAddNodesFromSqlFailed & vbNewLine & ex.Message, True)
                 End Try
             End Sub
 
@@ -569,7 +569,7 @@ Namespace Config
 
                     Return conI
                 Catch ex As Exception
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strGetConnectionInfoFromSqlFailed & vbNewLine & ex.Message, True)
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strGetConnectionInfoFromSqlFailed & vbNewLine & ex.Message, True)
                 End Try
 
                 Return Nothing
@@ -581,7 +581,7 @@ Namespace Config
                 SqlConnection.Open()
 
                 If Not VerifyDatabaseVersion(SqlConnection) Then
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, strErrorConnectionListSaveFailed)
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, strErrorConnectionListSaveFailed)
                     Return
                 End If
 
@@ -916,7 +916,7 @@ Namespace Config
                     sqlDataReader.Close()
 
                     If databaseVersion.CompareTo(New System.Version(2, 2)) = 0 Then ' 2.2
-                        mC.AddMessage(Messages.MessageClass.InformationMsg, String.Format("Upgrading database from version {0} to version {1}.", databaseVersion.ToString, "2.3"))
+                        MessageCollector.AddMessage(Messages.MessageClass.InformationMsg, String.Format("Upgrading database from version {0} to version {1}.", databaseVersion.ToString, "2.3"))
                         sqlCommand = New SqlCommand("ALTER TABLE tblCons ADD EnableFontSmoothing bit NOT NULL DEFAULT 0, EnableDesktopComposition bit NOT NULL DEFAULT 0, InheritEnableFontSmoothing bit NOT NULL DEFAULT 0, InheritEnableDesktopComposition bit NOT NULL DEFAULT 0;", sqlConnection)
                         sqlCommand.ExecuteNonQuery()
                         databaseVersion = New System.Version(2, 3)
@@ -927,10 +927,10 @@ Namespace Config
                     End If
 
                     If isVerified = False Then
-                        mC.AddMessage(Messages.MessageClass.WarningMsg, String.Format(strErrorBadDatabaseVersion, databaseVersion.ToString, My.Application.Info.ProductName))
+                        MessageCollector.AddMessage(Messages.MessageClass.WarningMsg, String.Format(strErrorBadDatabaseVersion, databaseVersion.ToString, My.Application.Info.ProductName))
                     End If
                 Catch ex As Exception
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, String.Format(strErrorVerifyDatabaseVersionFailed, ex.Message))
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, String.Format(strErrorVerifyDatabaseVersionFailed, ex.Message))
                 Finally
                     If sqlDataReader IsNot Nothing Then
                         If Not sqlDataReader.IsClosed Then sqlDataReader.Close()

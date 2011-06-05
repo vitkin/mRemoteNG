@@ -21,7 +21,7 @@ Namespace Config
 
 #Region "Private Methods"
             Private Sub SaveTomRCSV()
-                If App.Runtime.ConnectionsFileLoaded = False Then
+                If App.Runtime.IsConnectionsFileLoaded = False Then
                     Exit Sub
                 End If
 

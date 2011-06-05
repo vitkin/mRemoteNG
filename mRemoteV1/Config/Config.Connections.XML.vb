@@ -83,7 +83,7 @@ Namespace Config
 
             Private Sub LoadFromXML(Optional ByVal cons As String = "")
                 Try
-                    App.Runtime.ConnectionsFileLoaded = False
+                    App.Runtime.IsConnectionsFileLoaded = False
 
                     ' SECTION 1. Create a DOM Document and load the XML data into it.
                     Me.xDom = New XmlDocument()
@@ -97,7 +97,7 @@ Namespace Config
                         Dim enCulture As New CultureInfo("en-US")
                         Me.confVersion = Convert.ToDouble(xDom.DocumentElement.Attributes("ConfVersion").Value, enCulture)
                     Else
-                        mC.AddMessage(Messages.MessageClass.WarningMsg, My.Resources.strOldConffile)
+                        MessageCollector.AddMessage(Messages.MessageClass.WarningMsg, My.Resources.strOldConffile)
                     End If
 
                     ' SECTION 2. Initialize the treeview control.
@@ -135,7 +135,7 @@ Namespace Config
                     End If
 
                     If Import = True And imp = False Then
-                        mC.AddMessage(Messages.MessageClass.InformationMsg, My.Resources.strCannotImportNormalSessionFile)
+                        MessageCollector.AddMessage(Messages.MessageClass.InformationMsg, My.Resources.strCannotImportNormalSessionFile)
 
                         Exit Sub
                     End If
@@ -170,11 +170,11 @@ Namespace Config
 
                     RootTreeNode.EnsureVisible()
 
-                    App.Runtime.ConnectionsFileLoaded = True
+                    App.Runtime.IsConnectionsFileLoaded = True
                     App.Runtime.Windows.treeForm.InitialRefresh()
                 Catch ex As Exception
-                    App.Runtime.ConnectionsFileLoaded = False
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strLoadFromXmlFailed & vbNewLine & ex.Message, True)
+                    App.Runtime.IsConnectionsFileLoaded = False
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strLoadFromXmlFailed & vbNewLine & ex.Message, True)
                 End Try
             End Sub
 
@@ -250,7 +250,7 @@ Namespace Config
                         inTreeNode.Text = inXmlNode.Attributes("Name").Value.Trim
                     End If
                 Catch ex As Exception
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strAddNodeFromXmlFailed & vbNewLine & ex.Message, True)
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strAddNodeFromXmlFailed & vbNewLine & ex.Message, True)
                 End Try
             End Sub
 
@@ -486,7 +486,7 @@ Namespace Config
                         End If
                     End With
                 Catch ex As Exception
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, String.Format(My.Resources.strGetConnectionInfoFromXmlFailed, conI.Name, Me.ConnectionFileName, ex.Message), False)
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, String.Format(My.Resources.strGetConnectionInfoFromXmlFailed, conI.Name, Me.ConnectionFileName, ex.Message), False)
                 End Try
                 Return conI
             End Function
@@ -509,7 +509,7 @@ Namespace Config
 
             Private Sub SaveToXML()
                 Try
-                    If App.Runtime.ConnectionsFileLoaded = False Then
+                    If App.Runtime.IsConnectionsFileLoaded = False Then
                         Exit Sub
                     End If
 
@@ -557,7 +557,7 @@ Namespace Config
                     xW.WriteEndElement()
                     xW.Close()
                 Catch ex As Exception
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, "SaveToXML failed" & vbNewLine & ex.Message, True)
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, "SaveToXML failed" & vbNewLine & ex.Message, True)
                 End Try
             End Sub
 
@@ -587,7 +587,7 @@ Namespace Config
                         End If
                     Next
                 Catch ex As Exception
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, "saveNode failed" & vbNewLine & ex.Message, True)
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, "saveNode failed" & vbNewLine & ex.Message, True)
                 End Try
             End Sub
 
@@ -805,7 +805,7 @@ Namespace Config
                         xW.WriteAttributeString("InheritRDGatewayDomain", "", False)
                     End If
                 Catch ex As Exception
-                    mC.AddMessage(Messages.MessageClass.ErrorMsg, "SaveConnectionFields failed" & vbNewLine & ex.Message, True)
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, "SaveConnectionFields failed" & vbNewLine & ex.Message, True)
                 End Try
             End Sub
 #End Region
