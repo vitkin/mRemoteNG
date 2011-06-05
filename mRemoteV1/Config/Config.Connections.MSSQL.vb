@@ -85,7 +85,7 @@ Namespace Config
                 Try
                     OpenConnection()
 
-                    Dim sqlQuery As SqlCommand = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
+                    Dim sqlQuery As New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
                     sqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
                     sqlDataReader.Read()
 
@@ -209,7 +209,7 @@ Namespace Config
                         SqlDataReader.Read()
                     End If
 
-                    Dim enCulture As CultureInfo = New CultureInfo("en-US")
+                    Dim enCulture As New CultureInfo("en-US")
                     Me.confVersion = Convert.ToDouble(sqlDataReader.Item("confVersion"), enCulture)
 
                     Dim rootNode As TreeNode
@@ -603,7 +603,7 @@ Namespace Config
                 sqlQuery = New SqlCommand("DELETE FROM tblRoot", SqlConnection)
                 Dim sqlWr As Integer = sqlQuery.ExecuteNonQuery
 
-                Dim enCulture As CultureInfo = New CultureInfo("en-US")
+                Dim enCulture As New CultureInfo("en-US")
                 sqlQuery = New SqlCommand("INSERT INTO tblRoot (Name, Export, Protected, ConfVersion) VALUES('" & PrepareValueForDB(tN.Text) & "', 0, '" & strProtected & "'," & App.Info.Connections.ConnectionFileVersion.ToString(enCulture) & ")", SqlConnection)
                 sqlWr = sqlQuery.ExecuteNonQuery
 
@@ -910,7 +910,7 @@ Namespace Config
                     sqlDataReader = sqlCommand.ExecuteReader()
                     sqlDataReader.Read()
 
-                    Dim enCulture As CultureInfo = New CultureInfo("en-US")
+                    Dim enCulture As New CultureInfo("en-US")
                     databaseVersion = New System.Version(Convert.ToDouble(sqlDataReader.Item("confVersion"), enCulture))
 
                     sqlDataReader.Close()

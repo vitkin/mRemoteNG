@@ -66,7 +66,7 @@ Namespace Security
                 If 0 = returnValue Then
                     Dim errCode As Integer = Marshal.GetLastWin32Error()
                     Dim errMsg As String = "LogonUser failed with error code: " + errCode.ToString() + "(" + GetErrorMessage(errCode) + ")"
-                    Dim exLogon As Exception = New System.Exception(errMsg)
+                    Dim exLogon As New System.Exception(errMsg)
                     Throw exLogon
                 End If
 

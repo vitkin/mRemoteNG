@@ -94,7 +94,7 @@ Namespace Config
                     End If
 
                     If xDom.DocumentElement.HasAttribute("ConfVersion") Then
-                        Dim enCulture As System.Globalization.CultureInfo = New CultureInfo("en-US")
+                        Dim enCulture As New CultureInfo("en-US")
                         Me.confVersion = Convert.ToDouble(xDom.DocumentElement.Attributes("ConfVersion").Value, enCulture)
                     Else
                         mC.AddMessage(Messages.MessageClass.WarningMsg, My.Resources.strOldConffile)
@@ -546,7 +546,7 @@ Namespace Config
                         End If
                     End If
 
-                    Dim enCulture As System.Globalization.CultureInfo = New CultureInfo("en-US")
+                    Dim enCulture As New CultureInfo("en-US")
                     xW.WriteAttributeString("ConfVersion", "", App.Info.Connections.ConnectionFileVersion.ToString(enCulture))
 
                     Dim tNC As TreeNodeCollection
