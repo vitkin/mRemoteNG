@@ -69,17 +69,7 @@ Namespace Config
             End Property
 #End Region
 
-#Region "Public Members"
-            Public Overrides Function Load() As Boolean
-                LoadFromSQL()
-                SetMainFormText("SQL Server")
-            End Function
-
-            Public Overrides Function Save() As Boolean
-                SaveToSQL()
-                SetMainFormText("SQL Server")
-            End Function
-
+#Region "Public Methods"
             Public Sub TestConnection()
                 Dim sqlDataReader As SqlDataReader = Nothing
                 Try
@@ -93,8 +83,8 @@ Namespace Config
                 Catch ex As Exception
                     MessageBox.Show(frmMain, ex.Message, "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Finally
-                    If SqlDataReader IsNot Nothing Then
-                        If Not SqlDataReader.IsClosed Then SqlDataReader.Close()
+                    If sqlDataReader IsNot Nothing Then
+                        If Not sqlDataReader.IsClosed Then sqlDataReader.Close()
                     End If
                     CloseConnection()
                 End Try
@@ -175,12 +165,16 @@ Namespace Config
                 ' Already open?
                 If Not (SqlConnection.State = ConnectionState.Closed Or SqlConnection.State = ConnectionState.Broken) Then Return True
 
-                Try
-                    SqlConnection.Open()
-                    Return True
-                Catch ex As System.Exception
-                    Return False
-                End Try
+                While True
+                    Try
+                        SqlConnection.Open()
+                        Return True
+                    Catch ex As System.Exception
+                        If MessageBox.Show(String.Format(strErrorDatabaseOpenConnectionFailed, ex.Message, vbNewLine), My.Application.Info.ProductName, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) = DialogResult.Cancel Then
+                            Return False
+                        End If
+                    End Try
+                End While
             End Function
 
             Private Sub CloseConnection()
@@ -191,11 +185,11 @@ Namespace Config
 #End Region
 
 #Region "Load"
-            Private Sub LoadFromSQL()
+            Public Overrides Function Load() As Boolean
                 Try
                     App.Runtime.IsConnectionsFileLoaded = False
 
-                    SqlConnection.Open()
+                    If Not OpenConnection() Then Return False
 
                     sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
                     Dim sqlDataReader As SqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
@@ -206,12 +200,11 @@ Namespace Config
                         App.Runtime.SaveConnections()
 
                         sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
-                        SqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
-                        SqlDataReader.Read()
+                        sqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+                        sqlDataReader.Read()
                     End If
 
-                    Dim enCulture As New CultureInfo("en-US")
-                    Me.confVersion = Convert.ToDouble(sqlDataReader.Item("confVersion"), enCulture)
+                    Me.confVersion = Convert.ToDouble(sqlDataReader.Item("confVersion"), CultureInfo.InvariantCulture)
 
                     Dim rootNode As TreeNode
                     rootNode = New TreeNode(sqlDataReader.Item("Name"))
@@ -229,7 +222,7 @@ Namespace Config
                             My.Settings.LoadConsFromCustomLocation = False
                             My.Settings.CustomConsPath = ""
                             rootNode.Remove()
-                            Exit Sub
+                            Return False
                         End If
                     End If
 
@@ -268,14 +261,18 @@ Namespace Config
                     AddNodeToTree(rootNode)
                     SetSelectedNode(selNode)
 
+                    CloseConnection()
+
+                    SetMainFormText(My.Resources.strSQLServer)
                     App.Runtime.IsConnectionsFileLoaded = True
                     'App.Runtime.Windows.treeForm.InitialRefresh()
 
-                    SqlConnection.Close()
+                    Return True
                 Catch ex As Exception
                     MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strLoadFromSqlFailed & vbNewLine & ex.Message, True)
+                    Return False
                 End Try
-            End Sub
+            End Function
 
             Private Delegate Sub AddNodeToTreeCB(ByVal TreeNode As TreeNode)
             Private Sub AddNodeToTree(ByVal TreeNode As TreeNode)
@@ -578,12 +575,12 @@ Namespace Config
 #End Region
 
 #Region "Save"
-            Private Sub SaveToSQL()
-                SqlConnection.Open()
+            Public Overrides Function Save() As Boolean
+                If Not OpenConnection() Then Return False
 
                 If Not VerifyDatabaseVersion(SqlConnection) Then
                     MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, strErrorConnectionListSaveFailed)
-                    Return
+                    Return False
                 End If
 
                 Dim tN As TreeNode
@@ -604,8 +601,7 @@ Namespace Config
                 sqlQuery = New SqlCommand("DELETE FROM tblRoot", SqlConnection)
                 Dim sqlWr As Integer = sqlQuery.ExecuteNonQuery
 
-                Dim enCulture As New CultureInfo("en-US")
-                sqlQuery = New SqlCommand("INSERT INTO tblRoot (Name, Export, Protected, ConfVersion) VALUES('" & PrepareValueForDB(tN.Text) & "', 0, '" & strProtected & "'," & App.Info.Connections.ConnectionFileVersion.ToString(enCulture) & ")", SqlConnection)
+                sqlQuery = New SqlCommand("INSERT INTO tblRoot (Name, Export, Protected, ConfVersion) VALUES('" & PrepareValueForDB(tN.Text) & "', 0, '" & strProtected & "'," & App.Info.Connections.ConnectionFileVersion.ToString(CultureInfo.InvariantCulture) & ")", SqlConnection)
                 sqlWr = sqlQuery.ExecuteNonQuery
 
                 sqlQuery = New SqlCommand("DELETE FROM tblCons", SqlConnection)
@@ -621,8 +617,12 @@ Namespace Config
                 sqlQuery = New SqlCommand("INSERT INTO tblUpdate (LastUpdate) VALUES('" & Tools.Misc.DBDate(Now) & "')", SqlConnection)
                 sqlWr = sqlQuery.ExecuteNonQuery
 
-                SqlConnection.Close()
-            End Sub
+                CloseConnection()
+
+                SetMainFormText(My.Resources.strSQLServer)
+
+                Return True
+            End Function
 
             Private Sub SaveNodesSQL(ByVal tnc As TreeNodeCollection)
                 For Each node As TreeNode In tnc
@@ -911,8 +911,7 @@ Namespace Config
                     sqlDataReader = sqlCommand.ExecuteReader()
                     sqlDataReader.Read()
 
-                    Dim enCulture As New CultureInfo("en-US")
-                    databaseVersion = New System.Version(Convert.ToDouble(sqlDataReader.Item("confVersion"), enCulture))
+                    databaseVersion = New System.Version(Convert.ToDouble(sqlDataReader.Item("confVersion"), CultureInfo.InvariantCulture))
 
                     sqlDataReader.Close()
 

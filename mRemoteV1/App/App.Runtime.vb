@@ -899,7 +899,7 @@ Namespace App
 
                 ' Load config
                 conL.ConnectionFileName = filename
-                conL.Load()
+                App.Runtime._isConnectionsFileLoaded = conL.Load()
             Catch ex As Exception
                 MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strCouldNotCreateNewConnectionsFile & vbNewLine & ex.Message)
             End Try
@@ -939,11 +939,11 @@ Namespace App
                 ConnectionList = New Connection.List
                 ContainerList = New Container.List
 
-                Dim conL As Config.Connections.Base
+                Dim connections As Config.Connections.Base
 
                 If My.Settings.UseSQLServer = False Then
-                    conL = New Config.Connections.XML
-                    Dim connectionXML As Config.Connections.XML = conL
+                    connections = New Config.Connections.XML
+                    Dim connectionXML As Config.Connections.XML = connections
                     If WithDialog Then
                         Dim lD As OpenFileDialog = Tools.Controls.ConnectionsLoadDialog
 
@@ -977,9 +977,9 @@ Namespace App
 
                     If File.Exists(connectionXML.ConnectionFileName) = False Then
                         If WithDialog Then
-                            MessageCollector.AddMessage(Messages.MessageClass.WarningMsg, String.Format(My.Resources.strConnectionsFileCouldNotBeLoaded, conL.ConnectionFileName))
+                            MessageCollector.AddMessage(Messages.MessageClass.WarningMsg, String.Format(My.Resources.strConnectionsFileCouldNotBeLoaded, connections.ConnectionFileName))
                         Else
-                            MessageCollector.AddMessage(Messages.MessageClass.InformationMsg, String.Format(My.Resources.strConnectionsFileCouldNotBeLoadedNew, conL.ConnectionFileName))
+                            MessageCollector.AddMessage(Messages.MessageClass.InformationMsg, String.Format(My.Resources.strConnectionsFileCouldNotBeLoadedNew, connections.ConnectionFileName))
                             App.Runtime.NewConnections(connectionXML.ConnectionFileName)
                         End If
 
@@ -987,13 +987,13 @@ Namespace App
                     End If
 
                     Try
-                            File.Copy(connectionXML.ConnectionFileName, connectionXML.ConnectionFileName & "_BAK", True)
+                        File.Copy(connectionXML.ConnectionFileName, connectionXML.ConnectionFileName & "_BAK", True)
                     Catch ex As Exception
                         MessageCollector.AddMessage(Messages.MessageClass.WarningMsg, My.Resources.strConnectionsFileBackupFailed & vbNewLine & vbNewLine & ex.Message)
                     End Try
                 Else
-                    conL = New Config.Connections.MSSQL
-                    Dim connectionSQL As Config.Connections.MSSQL = conL
+                    connections = New Config.Connections.MSSQL
+                    Dim connectionSQL As Config.Connections.MSSQL = connections
 
                     connectionSQL.UseSQL = My.Settings.UseSQLServer
                     connectionSQL.SQLHost = My.Settings.SQLHost
@@ -1003,25 +1003,26 @@ Namespace App
                     connectionSQL.SQLUpdate = Update
                 End If
 
-                conL.ConnectionList = ConnectionList
-                conL.ContainerList = ContainerList
+                connections.ConnectionList = ConnectionList
+                connections.ContainerList = ContainerList
 
                 If PreviousConnectionList IsNot Nothing And PreviousContainerList IsNot Nothing Then
-                    conL.PreviousConnectionList = PreviousConnectionList
-                    conL.PreviousContainerList = PreviousContainerList
+                    connections.PreviousConnectionList = PreviousConnectionList
+                    connections.PreviousContainerList = PreviousContainerList
                 End If
 
                 If Update = True Then
-                    conL.PreviousSelected = LastSelected
+                    connections.PreviousSelected = LastSelected
                 End If
 
-                conL.Import = False
+                connections.Import = False
 
                 Tree.Node.ResetTree()
 
-                conL.RootTreeNode = Windows.treeForm.tvConnections.Nodes(0)
+                connections.RootTreeNode = Windows.treeForm.tvConnections.Nodes(0)
 
-                conL.Load()
+                App.Runtime._isConnectionsFileLoaded = connections.Load()
+                If Not App.Runtime._isConnectionsFileLoaded Then Return
 
                 If My.Settings.UseSQLServer = True Then
                     LastSqlUpdate = Now
@@ -1299,6 +1300,8 @@ Namespace App
         End Sub
 
         Public Shared Sub SaveConnections(Optional ByVal Update As Boolean = False)
+            If _isConnectionsFileLoaded = False Then Return
+
             Try
                 If Update = True And My.Settings.UseSQLServer = False Then
                     Exit Sub
@@ -1356,6 +1359,8 @@ Namespace App
         End Sub
 
         Public Shared Sub SaveConnectionsAs(ByVal SaveSecurity As Security.Save, ByVal RootNode As TreeNode)
+            If _isConnectionsFileLoaded = False Then Return
+
             Dim conS As Config.Connections.Base = Nothing
             Dim fileName As String = "Unknown"
             Try
@@ -1821,7 +1826,7 @@ Namespace App
             Try
                 Dim txt As String = My.Application.Info.ProductName
 
-                If ConnectionFileName <> "" And IsConnectionsFileLoaded = True Then
+                If Not String.IsNullOrEmpty(ConnectionFileName) And _isConnectionsFileLoaded Then
                     If My.Settings.ShowCompleteConsPathInTitle Then
                         txt &= " - " & ConnectionFileName
                     Else

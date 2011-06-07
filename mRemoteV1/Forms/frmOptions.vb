@@ -1673,7 +1673,7 @@ Public Class frmOptions
             App.Runtime.Startup.DestroySQLUpdateHandlerAndStopTimer()
 
             If My.Settings.UseSQLServer = True Then
-                App.Runtime.SetMainFormText("SQL Server")
+                App.Runtime.SetMainFormText(My.Resources.strSQLServer)
                 App.Runtime.Startup.CreateSQLUpdateHandlerAndStartTimer()
             End If
         Catch ex As Exception

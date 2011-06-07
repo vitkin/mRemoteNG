@@ -222,17 +222,22 @@ Namespace My.Resources
         End Property
         
         '''<summary>
-        '''  Looks up a localized string similar to CREATE TABLE tblCons (
+        '''  Looks up a localized string similar to CREATE TABLE tblRoot (
+        '''	Name varchar (2048) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+        '''	Export bit NOT NULL,
+        '''	Protected varchar (4048) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
+        '''	ConfVersion float NOT NULL 
+        ''');
+        '''
+        '''CREATE TABLE tblUpdate (
+        '''    LastUpdate datetime NULL 
+        ''');
+        ''' 
+        '''CREATE TABLE tblCons (
         '''	ID int IDENTITY (1001, 1) NOT NULL,
         '''	ConstantID varchar (128) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
         '''	PositionID int NOT NULL,
-        '''	ParentID varchar (128) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-        '''	LastChange datetime NOT NULL,
-        '''	Name varchar (128) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-        '''	Type varchar (32) COLLATE SQL_Latin1_General_CP1_CI_AS NOT NULL,
-        '''	Expanded bit NOT NULL,
-        '''	Description varchar (1024) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-        '''	Icon varchar (128) C [rest of string was truncated]&quot;;.
+        '''	ParentID varchar (128) COLLATE SQL_Latin1_General_CP1_CI_AS NU [rest of string was truncated]&quot;;.
         '''</summary>
         Friend ReadOnly Property CreateTables() As String
             Get
@@ -2211,6 +2216,15 @@ Namespace My.Resources
         Friend ReadOnly Property strErrorConnectionListSaveFailed() As String
             Get
                 Return ResourceManager.GetString("strErrorConnectionListSaveFailed", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to The database connection could not be opened.{1}{1}{0}.
+        '''</summary>
+        Friend ReadOnly Property strErrorDatabaseOpenConnectionFailed() As String
+            Get
+                Return ResourceManager.GetString("strErrorDatabaseOpenConnectionFailed", resourceCulture)
             End Get
         End Property
         
