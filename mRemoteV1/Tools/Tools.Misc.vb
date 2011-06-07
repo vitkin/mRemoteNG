@@ -3,6 +3,7 @@ Imports System.ComponentModel
 Imports System.Runtime.InteropServices
 Imports System.Collections.Specialized
 Imports System.Text.RegularExpressions
+Imports System.Globalization
 Imports mRemoteNG.App.Runtime
 Imports System.IO
 Imports System.Data.SqlClient
@@ -145,12 +146,8 @@ Namespace Tools
             End If
         End Function
 
-        Public Shared Function DBDate(ByVal Dt As Date) As String
-            Dim strDate As String
-
-            strDate = Dt.Year & LeadingZero(Dt.Month) & LeadingZero(Dt.Day) & " " & LeadingZero(Dt.Hour) & ":" & LeadingZero(Dt.Minute) & ":" & LeadingZero(Dt.Second)
-
-            Return strDate
+        Public Shared Function DBDate(ByVal dateObject As Date) As String
+            Return dateObject.ToString("yyyyMMdd HH:mm:ss", CultureInfo.InvariantCulture)
         End Function
 
         Public Shared Function StringToEnum(ByVal t As Type, ByVal value As String) As Object

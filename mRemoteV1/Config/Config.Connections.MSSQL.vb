@@ -601,7 +601,7 @@ Namespace Config
                 sqlQuery = New SqlCommand("DELETE FROM tblRoot", SqlConnection)
                 Dim sqlWr As Integer = sqlQuery.ExecuteNonQuery
 
-                sqlQuery = New SqlCommand("INSERT INTO tblRoot (Name, Export, Protected, ConfVersion) VALUES('" & PrepareValueForDB(tN.Text) & "', 0, '" & strProtected & "'," & App.Info.Connections.ConnectionFileVersion.ToString(CultureInfo.InvariantCulture) & ")", SqlConnection)
+                sqlQuery = New SqlCommand("INSERT INTO tblRoot (Name, Export, Protected, ConfVersion) VALUES('" & EscapeSingleQuotes(tN.Text) & "', 0, '" & strProtected & "'," & App.Info.Connections.ConnectionFileVersion.ToString(CultureInfo.InvariantCulture) & ")", SqlConnection)
                 sqlWr = sqlQuery.ExecuteNonQuery
 
                 sqlQuery = New SqlCommand("DELETE FROM tblCons", SqlConnection)
@@ -624,259 +624,243 @@ Namespace Config
                 Return True
             End Function
 
-            Private Sub SaveNodesSQL(ByVal tnc As TreeNodeCollection)
-                For Each node As TreeNode In tnc
+            Private Sub SaveNodesSQL(ByVal treeNodes As TreeNodeCollection)
+                Dim data As New ColumnValueCollection
+
+                For Each node As TreeNode In treeNodes
                     gIndex += 1
 
-                    Dim curConI As Connection.Info
-                    sqlQuery = New SqlCommand("INSERT INTO tblCons (Name, Type, Expanded, Description, Icon, Panel, Username, " & _
-                                               "DomainName, Password, Hostname, Protocol, PuttySession, " & _
-                                               "Port, ConnectToConsole, RenderingEngine, ICAEncryptionStrength, RDPAuthenticationLevel, Colors, Resolution, DisplayWallpaper, " & _
-                                               "DisplayThemes, EnableFontSmoothing, EnableDesktopComposition, CacheBitmaps, RedirectDiskDrives, RedirectPorts, " & _
-                                               "RedirectPrinters, RedirectSmartCards, RedirectSound, RedirectKeys, " & _
-                                               "Connected, PreExtApp, PostExtApp, MacAddress, UserField, ExtApp, VNCCompression, VNCEncoding, VNCAuthMode, " & _
-                                               "VNCProxyType, VNCProxyIP, VNCProxyPort, VNCProxyUsername, VNCProxyPassword, " & _
-                                               "VNCColors, VNCSmartSizeMode, VNCViewOnly, " & _
-                                               "RDGatewayUsageMethod, RDGatewayHostname, RDGatewayUseConnectionCredentials, RDGatewayUsername, RDGatewayPassword, RDGatewayDomain, " & _
-                                               "InheritCacheBitmaps, InheritColors, " & _
-                                               "InheritDescription, InheritDisplayThemes, InheritDisplayWallpaper, InheritEnableFontSmoothing, InheritEnableDesktopComposition, InheritDomain, " & _
-                                               "InheritIcon, InheritPanel, InheritPassword, InheritPort, " & _
-                                               "InheritProtocol, InheritPuttySession, InheritRedirectDiskDrives, " & _
-                                               "InheritRedirectKeys, InheritRedirectPorts, InheritRedirectPrinters, " & _
-                                               "InheritRedirectSmartCards, InheritRedirectSound, InheritResolution, " & _
-                                               "InheritUseConsoleSession, InheritRenderingEngine, InheritUsername, InheritICAEncryptionStrength, InheritRDPAuthenticationLevel, " & _
-                                               "InheritPreExtApp, InheritPostExtApp, InheritMacAddress, InheritUserField, InheritExtApp, InheritVNCCompression, InheritVNCEncoding, " & _
-                                               "InheritVNCAuthMode, InheritVNCProxyType, InheritVNCProxyIP, InheritVNCProxyPort, " & _
-                                               "InheritVNCProxyUsername, InheritVNCProxyPassword, InheritVNCColors, " & _
-                                               "InheritVNCSmartSizeMode, InheritVNCViewOnly, " & _
-                                               "InheritRDGatewayUsageMethod, InheritRDGatewayHostname, InheritRDGatewayUseConnectionCredentials, InheritRDGatewayUsername, InheritRDGatewayPassword, InheritRDGatewayDomain, " & _
-                                               "PositionID, ParentID, ConstantID, LastChange)" & _
-                                               "VALUES (", SqlConnection)
+                    Dim currentConnectionInfo As Connection.Info
+
+                    data.Clear()
 
                     If Tree.Node.GetNodeType(node) = Tree.Node.Type.Connection Or Tree.Node.GetNodeType(node) = Tree.Node.Type.Container Then
-                        'xW.WriteStartElement("Node")
-                        sqlQuery.CommandText &= "'" & PrepareValueForDB(node.Text) & "'," 'Name
-                        sqlQuery.CommandText &= "'" & Tree.Node.GetNodeType(node).ToString & "'," 'Type
+                        data.Add("Name", node.Text)
+                        data.Add("Type", Tree.Node.GetNodeType(node).ToString)
                     End If
 
                     If Tree.Node.GetNodeType(node) = Tree.Node.Type.Container Then 'container
-                        sqlQuery.CommandText &= "'" & ContainerList(node.Tag).IsExpanded & "'," 'Expanded
-                        curConI = ContainerList(node.Tag).ConnectionInfo
-                        SaveConnectionFieldsSQL(curConI)
+                        data.Add("Expanded", ContainerList(node.Tag).IsExpanded)
 
-                        sqlQuery.CommandText = PrepareForDB(sqlQuery.CommandText)
+                        currentConnectionInfo = ContainerList(node.Tag).ConnectionInfo
+                        SaveConnectionFieldsSQL(currentConnectionInfo, data)
+
+                        sqlQuery = New SqlCommand(String.Format("INSERT INTO tblCons ({0}) VALUES ({1})", data.ColumnsString, data.ValuesString), SqlConnection)
                         sqlQuery.ExecuteNonQuery()
-                        'parentID = gIndex
+
                         SaveNodesSQL(node.Nodes)
-                        'xW.WriteEndElement()
                     End If
 
                     If Tree.Node.GetNodeType(node) = Tree.Node.Type.Connection Then
-                        sqlQuery.CommandText &= "'" & False & "',"
-                        curConI = ConnectionList(node.Tag)
-                        SaveConnectionFieldsSQL(curConI)
-                        'xW.WriteEndElement()
-                        sqlQuery.CommandText = PrepareForDB(sqlQuery.CommandText)
+                        data.Add("Expanded", False)
+
+                        currentConnectionInfo = ConnectionList(node.Tag)
+                        SaveConnectionFieldsSQL(currentConnectionInfo, data)
+
+                        sqlQuery = New SqlCommand(String.Format("INSERT INTO tblCons ({0}) VALUES ({1})", data.ColumnsString, data.ValuesString), SqlConnection)
                         sqlQuery.ExecuteNonQuery()
                     End If
-
-                    'parentID = 0
                 Next
             End Sub
 
-            Private Sub SaveConnectionFieldsSQL(ByVal curConI As Connection.Info)
-                With curConI
-                    sqlQuery.CommandText &= "'" & PrepareValueForDB(.Description) & "',"
-                    sqlQuery.CommandText &= "'" & PrepareValueForDB(.Icon) & "',"
-                    sqlQuery.CommandText &= "'" & PrepareValueForDB(.Panel) & "',"
+            Private Sub SaveConnectionFieldsSQL(ByRef currentConnectionInfo As Connection.Info, ByRef data As ColumnValueCollection)
+                With currentConnectionInfo
+                    data.Add("Description", .Description)
+                    data.Add("Icon", .Icon)
+                    data.Add("Panel", .Panel)
 
-                    If SaveSecurity.Username = True Then
-                        sqlQuery.CommandText &= "'" & PrepareValueForDB(.Username) & "',"
+                    If SaveSecurity.Username Then
+                        data.Add("Username", .Username)
                     Else
-                        sqlQuery.CommandText &= "'" & "" & "',"
+                        data.Add("Username")
                     End If
 
-                    If SaveSecurity.Domain = True Then
-                        sqlQuery.CommandText &= "'" & PrepareValueForDB(.Domain) & "',"
+                    If SaveSecurity.Domain Then
+                        data.Add("DomainName", .Domain)
                     Else
-                        sqlQuery.CommandText &= "'" & "" & "',"
+                        data.Add("DomainName")
+                    End If
+
+                    If SaveSecurity.Password Then
+                        data.Add("Password", Security.Crypt.Encrypt(.Password, pW))
+                    Else
+                        data.Add("Password")
+                    End If
+
+                    data.Add("Hostname", .Hostname)
+                    data.Add("Protocol", .Protocol.ToString)
+                    data.Add("PuttySession", .PuttySession)
+                    data.Add("Port", .Port)
+                    data.Add("ConnectToConsole", .UseConsoleSession, True)
+                    data.Add("RenderingEngine", .RenderingEngine)
+                    data.Add("ICAEncryptionStrength", .ICAEncryption)
+                    data.Add("RDPAuthenticationLevel", .RDPAuthenticationLevel)
+                    data.Add("Colors", .Colors)
+                    data.Add("Resolution", .Resolution)
+                    data.Add("DisplayWallpaper", .DisplayWallpaper, True)
+                    data.Add("DisplayThemes", .DisplayThemes, True)
+                    data.Add("EnableFontSmoothing", .EnableFontSmoothing, True)
+                    data.Add("EnableDesktopComposition", .EnableDesktopComposition, True)
+                    data.Add("CacheBitmaps", .CacheBitmaps, True)
+                    data.Add("RedirectDiskDrives", .RedirectDiskDrives, True)
+                    data.Add("RedirectPorts", .RedirectPorts, True)
+                    data.Add("RedirectPrinters", .RedirectPrinters, True)
+                    data.Add("RedirectSmartCards", .RedirectSmartCards, True)
+                    data.Add("RedirectSound", .RedirectSound, True)
+                    data.Add("RedirectKeys", .RedirectKeys, True)
+
+                    If currentConnectionInfo.OpenConnections.Count > 0 Then
+                        data.Add("Connected", True, True)
+                    Else
+                        data.Add("Connected", False, True)
+                    End If
+
+                    data.Add("PreExtApp", .PreExtApp)
+                    data.Add("PostExtApp", .PostExtApp)
+                    data.Add("MacAddress", .MacAddress)
+                    data.Add("UserField", .UserField)
+                    data.Add("ExtApp", .ExtApp)
+
+                    data.Add("VNCCompression", .VNCCompression)
+                    data.Add("VNCEncoding", .VNCEncoding)
+                    data.Add("VNCAuthMode", .VNCAuthMode)
+                    data.Add("VNCProxyType", .VNCProxyType)
+                    data.Add("VNCProxyIP", .VNCProxyIP)
+                    data.Add("VNCProxyPort", .VNCProxyPort)
+                    data.Add("VNCProxyUsername", .VNCProxyUsername)
+                    data.Add("VNCProxyPassword", Security.Crypt.Encrypt(.VNCProxyPassword, pW))
+                    data.Add("VNCColors", .VNCColors)
+                    data.Add("VNCSmartSizeMode", .VNCSmartSizeMode)
+                    data.Add("VNCViewOnly", .VNCViewOnly, True)
+
+                    data.Add("RDGatewayUsageMethod", .RDGatewayUsageMethod)
+                    data.Add("RDGatewayHostname", .RDGatewayHostname)
+                    data.Add("RDGatewayUseConnectionCredentials", .RDGatewayUseConnectionCredentials)
+
+                    If SaveSecurity.Username Then
+                        data.Add("RDGatewayUsername", .RDGatewayUsername)
+                    Else
+                        data.Add("RDGatewayUsername")
                     End If
 
                     If SaveSecurity.Password = True Then
-                        sqlQuery.CommandText &= "'" & PrepareValueForDB(Security.Crypt.Encrypt(.Password, pW)) & "',"
+                        data.Add("RDGatewayPassword", .RDGatewayPassword)
                     Else
-                        sqlQuery.CommandText &= "'" & "" & "',"
-                    End If
-
-                    sqlQuery.CommandText &= "'" & PrepareValueForDB(.Hostname) & "',"
-                    sqlQuery.CommandText &= "'" & .Protocol.ToString & "',"
-                    sqlQuery.CommandText &= "'" & PrepareValueForDB(.PuttySession) & "',"
-                    sqlQuery.CommandText &= "'" & .Port & "',"
-                    sqlQuery.CommandText &= "'" & .UseConsoleSession & "',"
-                    sqlQuery.CommandText &= "'" & .RenderingEngine.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .ICAEncryption.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .RDPAuthenticationLevel.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .Colors.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .Resolution.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .DisplayWallpaper & "',"
-                    sqlQuery.CommandText &= "'" & .DisplayThemes & "',"
-                    sqlQuery.CommandText &= "'" & .EnableFontSmoothing & "',"
-                    sqlQuery.CommandText &= "'" & .EnableDesktopComposition & "',"
-                    sqlQuery.CommandText &= "'" & .CacheBitmaps & "',"
-                    sqlQuery.CommandText &= "'" & .RedirectDiskDrives & "',"
-                    sqlQuery.CommandText &= "'" & .RedirectPorts & "',"
-                    sqlQuery.CommandText &= "'" & .RedirectPrinters & "',"
-                    sqlQuery.CommandText &= "'" & .RedirectSmartCards & "',"
-                    sqlQuery.CommandText &= "'" & .RedirectSound.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .RedirectKeys & "',"
-
-                    If curConI.OpenConnections.Count > 0 Then
-                        sqlQuery.CommandText &= 1 & ","
-                    Else
-                        sqlQuery.CommandText &= 0 & ","
-                    End If
-
-                    sqlQuery.CommandText &= "'" & .PreExtApp & "',"
-                    sqlQuery.CommandText &= "'" & .PostExtApp & "',"
-                    sqlQuery.CommandText &= "'" & .MacAddress & "',"
-                    sqlQuery.CommandText &= "'" & .UserField & "',"
-                    sqlQuery.CommandText &= "'" & .ExtApp & "',"
-
-                    sqlQuery.CommandText &= "'" & .VNCCompression.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .VNCEncoding.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .VNCAuthMode.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .VNCProxyType.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .VNCProxyIP & "',"
-                    sqlQuery.CommandText &= "'" & .VNCProxyPort & "',"
-                    sqlQuery.CommandText &= "'" & .VNCProxyUsername & "',"
-                    sqlQuery.CommandText &= "'" & Security.Crypt.Encrypt(.VNCProxyPassword, pW) & "',"
-                    sqlQuery.CommandText &= "'" & .VNCColors.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .VNCSmartSizeMode.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .VNCViewOnly & "',"
-
-                    sqlQuery.CommandText &= "'" & .RDGatewayUsageMethod.ToString & "',"
-                    sqlQuery.CommandText &= "'" & .RDGatewayHostname & "',"
-                    sqlQuery.CommandText &= "'" & .RDGatewayUseConnectionCredentials.ToString & "',"
-
-                    If SaveSecurity.Username = True Then
-                        sqlQuery.CommandText &= "'" & .RDGatewayUsername & "',"
-                    Else
-                        sqlQuery.CommandText &= "'" & "" & "',"
-                    End If
-
-                    If SaveSecurity.Password = True Then
-                        sqlQuery.CommandText &= "'" & .RDGatewayPassword & "',"
-                    Else
-                        sqlQuery.CommandText &= "'" & "" & "',"
+                        data.Add("RDGatewayPassword")
                     End If
 
                     If SaveSecurity.Domain = True Then
-                        sqlQuery.CommandText &= "'" & .RDGatewayDomain & "',"
+                        data.Add("RDGatewayDomain", .RDGatewayDomain)
                     Else
-                        sqlQuery.CommandText &= "'" & "" & "',"
+                        data.Add("RDGatewayDomain")
                     End If
 
                     With .Inherit
                         If SaveSecurity.Inheritance = True Then
-                            sqlQuery.CommandText &= "'" & .CacheBitmaps & "',"
-                            sqlQuery.CommandText &= "'" & .Colors & "',"
-                            sqlQuery.CommandText &= "'" & .Description & "',"
-                            sqlQuery.CommandText &= "'" & .DisplayThemes & "',"
-                            sqlQuery.CommandText &= "'" & .DisplayWallpaper & "',"
-                            sqlQuery.CommandText &= "'" & .EnableFontSmoothing & "',"
-                            sqlQuery.CommandText &= "'" & .EnableDesktopComposition & "',"
-                            sqlQuery.CommandText &= "'" & .Domain & "',"
-                            sqlQuery.CommandText &= "'" & .Icon & "',"
-                            sqlQuery.CommandText &= "'" & .Panel & "',"
-                            sqlQuery.CommandText &= "'" & .Password & "',"
-                            sqlQuery.CommandText &= "'" & .Port & "',"
-                            sqlQuery.CommandText &= "'" & .Protocol & "',"
-                            sqlQuery.CommandText &= "'" & .PuttySession & "',"
-                            sqlQuery.CommandText &= "'" & .RedirectDiskDrives & "',"
-                            sqlQuery.CommandText &= "'" & .RedirectKeys & "',"
-                            sqlQuery.CommandText &= "'" & .RedirectPorts & "',"
-                            sqlQuery.CommandText &= "'" & .RedirectPrinters & "',"
-                            sqlQuery.CommandText &= "'" & .RedirectSmartCards & "',"
-                            sqlQuery.CommandText &= "'" & .RedirectSound & "',"
-                            sqlQuery.CommandText &= "'" & .Resolution & "',"
-                            sqlQuery.CommandText &= "'" & .UseConsoleSession & "',"
-                            sqlQuery.CommandText &= "'" & .RenderingEngine & "',"
-                            sqlQuery.CommandText &= "'" & .Username & "',"
-                            sqlQuery.CommandText &= "'" & .ICAEncryption & "',"
-                            sqlQuery.CommandText &= "'" & .RDPAuthenticationLevel & "',"
-                            sqlQuery.CommandText &= "'" & .PreExtApp & "',"
-                            sqlQuery.CommandText &= "'" & .PostExtApp & "',"
-                            sqlQuery.CommandText &= "'" & .MacAddress & "',"
-                            sqlQuery.CommandText &= "'" & .UserField & "',"
-                            sqlQuery.CommandText &= "'" & .ExtApp & "',"
+                            data.Add("InheritCacheBitmaps", .CacheBitmaps, True)
+                            data.Add("InheritColors", .Colors, True)
+                            data.Add("InheritDescription", .Description, True)
+                            data.Add("InheritDisplayThemes", .DisplayThemes, True)
+                            data.Add("InheritDisplayWallpaper", .DisplayWallpaper, True)
+                            data.Add("InheritEnableFontSmoothing", .EnableFontSmoothing, True)
+                            data.Add("InheritEnableDesktopComposition", .EnableDesktopComposition, True)
+                            data.Add("InheritDomain", .Domain, True)
+                            data.Add("InheritIcon", .Icon, True)
+                            data.Add("InheritPanel", .Panel, True)
+                            data.Add("InheritPassword", .Password, True)
+                            data.Add("InheritPort", .Port, True)
+                            data.Add("InheritProtocol", .Protocol, True)
+                            data.Add("InheritPuttySession", .PuttySession, True)
+                            data.Add("InheritRedirectDiskDrives", .RedirectDiskDrives, True)
+                            data.Add("InheritRedirectKeys", .RedirectKeys, True)
+                            data.Add("InheritRedirectPorts", .RedirectPorts, True)
+                            data.Add("InheritRedirectPrinters", .RedirectPrinters, True)
+                            data.Add("InheritRedirectSmartCards", .RedirectSmartCards, True)
+                            data.Add("InheritRedirectSound", .RedirectSound, True)
+                            data.Add("InheritResolution", .Resolution, True)
+                            data.Add("InheritUseConsoleSession", .UseConsoleSession, True)
+                            data.Add("InheritRenderingEngine", .RenderingEngine, True)
+                            data.Add("InheritUsername", .Username, True)
+                            data.Add("InheritICAEncryptionStrength", .ICAEncryption, True)
+                            data.Add("InheritRDPAuthenticationLevel", .RDPAuthenticationLevel, True)
+                            data.Add("InheritPreExtApp", .PreExtApp, True)
+                            data.Add("InheritPostExtApp", .PostExtApp, True)
+                            data.Add("InheritMacAddress", .MacAddress, True)
+                            data.Add("InheritUserField", .UserField, True)
+                            data.Add("InheritExtApp", .ExtApp, True)
 
-                            sqlQuery.CommandText &= "'" & .VNCCompression & "',"
-                            sqlQuery.CommandText &= "'" & .VNCEncoding & "',"
-                            sqlQuery.CommandText &= "'" & .VNCAuthMode & "',"
-                            sqlQuery.CommandText &= "'" & .VNCProxyType & "',"
-                            sqlQuery.CommandText &= "'" & .VNCProxyIP & "',"
-                            sqlQuery.CommandText &= "'" & .VNCProxyPort & "',"
-                            sqlQuery.CommandText &= "'" & .VNCProxyUsername & "',"
-                            sqlQuery.CommandText &= "'" & .VNCProxyPassword & "',"
-                            sqlQuery.CommandText &= "'" & .VNCColors & "',"
-                            sqlQuery.CommandText &= "'" & .VNCSmartSizeMode & "',"
-                            sqlQuery.CommandText &= "'" & .VNCViewOnly & "',"
+                            data.Add("InheritVNCCompression", .VNCCompression, True)
+                            data.Add("InheritVNCEncoding", .VNCEncoding, True)
+                            data.Add("InheritVNCAuthMode", .VNCAuthMode, True)
+                            data.Add("InheritVNCProxyType", .VNCProxyType, True)
+                            data.Add("InheritVNCProxyIP", .VNCProxyIP, True)
+                            data.Add("InheritVNCProxyPort", .VNCProxyPort, True)
+                            data.Add("InheritVNCProxyUsername", .VNCProxyUsername, True)
+                            data.Add("InheritVNCProxyPassword", .VNCProxyPassword, True)
+                            data.Add("InheritVNCColors", .VNCColors, True)
+                            data.Add("InheritVNCSmartSizeMode", .VNCSmartSizeMode, True)
+                            data.Add("InheritVNCViewOnly", .VNCViewOnly, True)
 
-                            sqlQuery.CommandText &= "'" & .RDGatewayUsageMethod & "',"
-                            sqlQuery.CommandText &= "'" & .RDGatewayHostname & "',"
-                            sqlQuery.CommandText &= "'" & .RDGatewayUseConnectionCredentials & "',"
-                            sqlQuery.CommandText &= "'" & .RDGatewayUsername & "',"
-                            sqlQuery.CommandText &= "'" & .RDGatewayPassword & "',"
-                            sqlQuery.CommandText &= "'" & .RDGatewayDomain & "',"
+                            data.Add("InheritRDGatewayUsageMethod", .RDGatewayUsageMethod, True)
+                            data.Add("InheritRDGatewayHostname", .RDGatewayHostname, True)
+                            data.Add("InheritRDGatewayUseConnectionCredentials", .RDGatewayUseConnectionCredentials, True)
+                            data.Add("InheritRDGatewayUsername", .RDGatewayUsername, True)
+                            data.Add("InheritRDGatewayPassword", .RDGatewayPassword, True)
+                            data.Add("InheritRDGatewayDomain", .RDGatewayDomain, True)
                         Else
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
+                            data.Add("InheritCacheBitmaps", False, True)
+                            data.Add("InheritColors", False, True)
+                            data.Add("InheritDescription", False, True)
+                            data.Add("InheritDisplayThemes", False, True)
+                            data.Add("InheritDisplayWallpaper", False, True)
+                            data.Add("InheritEnableFontSmoothing", False, True)
+                            data.Add("InheritEnableDesktopComposition", False, True)
+                            data.Add("InheritDomain", False, True)
+                            data.Add("InheritIcon", False, True)
+                            data.Add("InheritPanel", False, True)
+                            data.Add("InheritPassword", False, True)
+                            data.Add("InheritPort", False, True)
+                            data.Add("InheritProtocol", False, True)
+                            data.Add("InheritPuttySession", False, True)
+                            data.Add("InheritRedirectDiskDrives", False, True)
+                            data.Add("InheritRedirectKeys", False, True)
+                            data.Add("InheritRedirectPorts", False, True)
+                            data.Add("InheritRedirectPrinters", False, True)
+                            data.Add("InheritRedirectSmartCards", False, True)
+                            data.Add("InheritRedirectSound", False, True)
+                            data.Add("InheritResolution", False, True)
+                            data.Add("InheritUseConsoleSession", False, True)
+                            data.Add("InheritRenderingEngine", False, True)
+                            data.Add("InheritUsername", False, True)
+                            data.Add("InheritICAEncryption", False, True)
+                            data.Add("InheritRDPAuthenticationLevel", False, True)
+                            data.Add("InheritPreExtApp", False, True)
+                            data.Add("InheritPostExtApp", False, True)
+                            data.Add("InheritMacAddress", False, True)
+                            data.Add("InheritUserField", False, True)
+                            data.Add("InheritExtApp", False, True)
 
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
-                            sqlQuery.CommandText &= "'" & False & "',"
+                            data.Add("InheritVNCCompression", False, True)
+                            data.Add("InheritVNCEncoding", False, True)
+                            data.Add("InheritVNCAuthMode", False, True)
+                            data.Add("InheritVNCCompression", False, True)
+                            data.Add("InheritVNCEncoding", False, True)
+                            data.Add("InheritVNCAuthMode", False, True)
+                            data.Add("InheritVNCProxyType", False, True)
+                            data.Add("InheritVNCProxyIP", False, True)
+                            data.Add("InheritVNCProxyPort", False, True)
+                            data.Add("InheritVNCProxyUsername", False, True)
+                            data.Add("InheritVNCProxyPassword", False, True)
+                            data.Add("InheritVNCColors", False, True)
+                            data.Add("InheritVNCSmartSizeMode", False, True)
+                            data.Add("InheritVNCViewOnly", False, True)
 
-                            sqlQuery.CommandText &= "'" & False & "'," ' .RDGatewayUsageMethod
-                            sqlQuery.CommandText &= "'" & False & "'," ' .RDGatewayHostname
-                            sqlQuery.CommandText &= "'" & False & "'," ' .RDGatewayUseConnectionCredentials
-                            sqlQuery.CommandText &= "'" & False & "'," ' .RDGatewayUsername
-                            sqlQuery.CommandText &= "'" & False & "'," ' .RDGatewayPassword
-                            sqlQuery.CommandText &= "'" & False & "'," ' .RDGatewayDomain
+                            data.Add("InheritRDGatewayUsageMethod", False, True)
+                            data.Add("InheritRDGatewayHostname", False, True)
+                            data.Add("InheritRDGatewayUseConnectionCredentials", False, True)
+                            data.Add("InheritRDGatewayUsername", False, True)
+                            data.Add("InheritRDGatewayPassword", False, True)
+                            data.Add("InheritRDGatewayDomain", False, True)
                         End If
                     End With
 
@@ -896,7 +880,10 @@ Namespace Config
                         End If
                     End If
 
-                    sqlQuery.CommandText &= gIndex & "," & parentID & "," & .ConstantID & ",'" & Tools.Misc.DBDate(Now) & "')"
+                    data.Add("PositionID", gIndex)
+                    data.Add("ParentID", parentID)
+                    data.Add("ConstantID", .ConstantID)
+                    data.Add("LastChange", Tools.Misc.DBDate(Now))
                 End With
             End Sub
 #End Region
@@ -939,20 +926,53 @@ Namespace Config
                 Return isVerified
             End Function
 
-            Private Shared Function PrepareForDB(ByVal Text As String) As String
-                Text = Replace(Text, "'True'", "1", , , CompareMethod.Text)
-                Text = Replace(Text, "'False'", "0", , , CompareMethod.Text)
-
-                Return Text
+            Private Shared Function EscapeSingleQuotes(ByVal text As String) As String
+                Return Replace(text, "'", "''", , , CompareMethod.Text)
             End Function
 
-            Private Shared Function PrepareValueForDB(ByVal Text As String) As String
-                Text = Replace(Text, "'", "''", , , CompareMethod.Text)
-
-                Return Text
+            Private Shared Function ConvertBoolean(ByVal value As Boolean) As String
+                If value Then Return "1" Else Return "0"
             End Function
+
+            Private Class ColumnValueCollection
+#Region "Public Methods"
+                Public Sub Clear()
+                    _columns.Clear()
+                    _values.Clear()
+                End Sub
+
+                Public Sub Add(ByVal column As String, Optional ByVal value As String = Nothing, Optional ByVal isBoolean As Boolean = False)
+                    _columns.Add(column)
+                    If String.IsNullOrEmpty(value) Then
+                        _values.Add("''")
+                    Else
+                        If isBoolean Then
+                            _values.Add(EscapeSingleQuotes(ConvertBoolean(value)))
+                        Else
+                            _values.Add("'" & EscapeSingleQuotes(value) & "'")
+                        End If
+                    End If
+                End Sub
+
+                Public ReadOnly Property ColumnsString() As String
+                    Get
+                        Return String.Join(",", _columns.ToArray)
+                    End Get
+                End Property
+
+                Public ReadOnly Property ValuesString() As String
+                    Get
+                        Return String.Join(",", _values.ToArray)
+                    End Get
+                End Property
 #End Region
 
+#Region "Private Variables"
+                Private _columns As New List(Of String)
+                Private _values As New List(Of String)
+#End Region
+            End Class
+#End Region
 #End Region
         End Class
     End Namespace
