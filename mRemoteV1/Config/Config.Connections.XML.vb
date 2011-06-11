@@ -12,9 +12,8 @@ Namespace Config
                 Dim strCons As String = DecryptCompleteFile()
                 LoadFromXML(strCons)
 
-                If Import = False Then
-                    SetMainFormText(ConnectionFileName)
-                End If
+                If Not Import Then SetMainFormText(ConnectionFileName)
+
             End Function
 
             Public Overrides Function Save() As Boolean
@@ -508,9 +507,7 @@ Namespace Config
 
             Private Sub SaveToXML()
                 Try
-                    If App.Runtime.IsConnectionsFileLoaded = False Then
-                        Exit Sub
-                    End If
+                    If Not App.Runtime.IsConnectionsFileLoaded = False Then Return
 
                     Dim tN As TreeNode
                     Dim exp As Boolean = False

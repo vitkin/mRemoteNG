@@ -1300,7 +1300,7 @@ Namespace App
         End Sub
 
         Public Shared Sub SaveConnections(Optional ByVal Update As Boolean = False)
-            If _isConnectionsFileLoaded = False Then Return
+            If Not _isConnectionsFileLoaded Then Return
 
             Try
                 If Update = True And My.Settings.UseSQLServer = False Then
@@ -1359,7 +1359,7 @@ Namespace App
         End Sub
 
         Public Shared Sub SaveConnectionsAs(ByVal SaveSecurity As Security.Save, ByVal RootNode As TreeNode)
-            If _isConnectionsFileLoaded = False Then Return
+            If Not _isConnectionsFileLoaded Then Return
 
             Dim conS As Config.Connections.Base = Nothing
             Dim fileName As String = "Unknown"

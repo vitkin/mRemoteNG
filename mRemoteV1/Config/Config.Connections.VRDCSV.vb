@@ -21,9 +21,7 @@ Namespace Config
 
 #Region "Private Methods"
             Private Sub SaveTovRDCSV()
-                If App.Runtime.IsConnectionsFileLoaded = False Then
-                    Exit Sub
-                End If
+                If Not App.Runtime.IsConnectionsFileLoaded Then Return
 
                 Dim tN As TreeNode
                 tN = RootTreeNode.Clone
