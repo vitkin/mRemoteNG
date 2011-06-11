@@ -71,21 +71,12 @@ Namespace Config
 
 #Region "Public Methods"
             Public Sub TestConnection()
-                Dim sqlDataReader As SqlDataReader = Nothing
                 Try
                     OpenConnection()
-
-                    Dim sqlQuery As New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
-                    sqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
-                    sqlDataReader.Read()
-
                     MessageBox.Show(frmMain, "The database connection was successful.", "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Catch ex As Exception
                     MessageBox.Show(frmMain, ex.Message, "SQL Server Connection Test", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 Finally
-                    If sqlDataReader IsNot Nothing Then
-                        If Not sqlDataReader.IsClosed Then sqlDataReader.Close()
-                    End If
                     CloseConnection()
                 End Try
             End Sub
