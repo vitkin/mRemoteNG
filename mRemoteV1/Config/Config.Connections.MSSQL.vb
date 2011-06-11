@@ -102,89 +102,7 @@ Namespace Config
                     CloseConnection()
                 End Try
             End Sub
-#End Region
 
-#Region "Private Properties"
-            Private _SqlConnection As SqlConnection = Nothing
-            Private ReadOnly Property SqlConnection() As SqlConnection
-                Get
-                    If _SqlConnection IsNot Nothing Then Return _SqlConnection
-
-                    Dim stringBuilder As New SqlConnectionStringBuilder
-                    stringBuilder.DataSource = SQLHost
-                    stringBuilder.InitialCatalog = SQLDatabaseName
-                    If String.IsNullOrEmpty(SQLUsername) Then
-                        stringBuilder.IntegratedSecurity = True
-                    Else
-                        stringBuilder.UserID = SQLUsername
-                        stringBuilder.Password = SQLPassword
-                    End If
-
-                    _SqlConnection = New SqlConnection(stringBuilder.ConnectionString)
-                    Return _SqlConnection
-                End Get
-            End Property
-
-            Private Property DatabaseVersion() As System.Version
-                Get
-                    OpenConnection()
-
-                    sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
-                    Dim sqlDataReader As SqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
-                    sqlDataReader.Read()
-
-                    Dim version As System.Version = sqlDataReader.Item("confVersion")
-
-                    sqlDataReader.Close()
-                    CloseConnection()
-
-                    Return version
-                End Get
-                Set(ByVal value As System.Version)
-
-                End Set
-            End Property
-#End Region
-
-#Region "Private Variables"
-            Private confVersion As Double
-
-            Private sqlQuery As SqlCommand
-            'Private sqlDataReader As SqlDataReader
-
-            Private gIndex As Integer = 0
-            Private parentID As String = 0
-#End Region
-
-#Region "Private Methods"
-
-#Region "SQL Server Connection"
-            Private Function OpenConnection() As Boolean
-                If SqlConnection Is Nothing Then Return False
-
-                ' Already open?
-                If Not (SqlConnection.State = ConnectionState.Closed Or SqlConnection.State = ConnectionState.Broken) Then Return True
-
-                While True
-                    Try
-                        SqlConnection.Open()
-                        Return True
-                    Catch ex As System.Exception
-                        If MessageBox.Show(String.Format(strErrorDatabaseOpenConnectionFailed, ex.Message, vbNewLine), My.Application.Info.ProductName, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) = DialogResult.Cancel Then
-                            Return False
-                        End If
-                    End Try
-                End While
-            End Function
-
-            Private Sub CloseConnection()
-                If SqlConnection Is Nothing Then Return
-                If SqlConnection.State = ConnectionState.Closed Then Return
-                SqlConnection.Close()
-            End Sub
-#End Region
-
-#Region "Load"
             Public Overrides Function Load() As Boolean
                 Try
                     App.Runtime.IsConnectionsFileLoaded = False
@@ -274,6 +192,137 @@ Namespace Config
                 End Try
             End Function
 
+            Public Overrides Function Save() As Boolean
+                If Not OpenConnection() Then Return False
+
+                If Not VerifyDatabaseVersion(SqlConnection) Then
+                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, strErrorConnectionListSaveFailed)
+                    Return False
+                End If
+
+                Dim tN As TreeNode
+                tN = RootTreeNode.Clone
+
+                Dim strProtected As String
+                If tN.Tag IsNot Nothing Then
+                    If TryCast(tN.Tag, mRemoteNG.Root.Info).Password = True Then
+                        pW = TryCast(tN.Tag, mRemoteNG.Root.Info).PasswordString
+                        strProtected = Security.Crypt.Encrypt("ThisIsProtected", pW)
+                    Else
+                        strProtected = Security.Crypt.Encrypt("ThisIsNotProtected", pW)
+                    End If
+                Else
+                    strProtected = Security.Crypt.Encrypt("ThisIsNotProtected", pW)
+                End If
+
+                sqlQuery = New SqlCommand("DELETE FROM tblRoot", SqlConnection)
+                Dim sqlWr As Integer = sqlQuery.ExecuteNonQuery
+
+                sqlQuery = New SqlCommand("INSERT INTO tblRoot (Name, Export, Protected, ConfVersion) VALUES('" & EscapeSingleQuotes(tN.Text) & "', 0, '" & strProtected & "'," & App.Info.Connections.ConnectionFileVersion.ToString(CultureInfo.InvariantCulture) & ")", SqlConnection)
+                sqlWr = sqlQuery.ExecuteNonQuery
+
+                sqlQuery = New SqlCommand("DELETE FROM tblCons", SqlConnection)
+                sqlWr = sqlQuery.ExecuteNonQuery
+
+                Dim tNC As TreeNodeCollection
+                tNC = tN.Nodes
+
+                SaveNodesSQL(tNC)
+
+                sqlQuery = New SqlCommand("DELETE FROM tblUpdate", SqlConnection)
+                sqlWr = sqlQuery.ExecuteNonQuery
+                sqlQuery = New SqlCommand("INSERT INTO tblUpdate (LastUpdate) VALUES('" & Tools.Misc.DBDate(Now) & "')", SqlConnection)
+                sqlWr = sqlQuery.ExecuteNonQuery
+
+                CloseConnection()
+
+                SetMainFormText(My.Resources.strSQLServer)
+
+                Return True
+            End Function
+#End Region
+
+#Region "Private Properties"
+            Private _SqlConnection As SqlConnection = Nothing
+            Private ReadOnly Property SqlConnection() As SqlConnection
+                Get
+                    If _SqlConnection IsNot Nothing Then Return _SqlConnection
+
+                    Dim stringBuilder As New SqlConnectionStringBuilder
+                    stringBuilder.DataSource = SQLHost
+                    stringBuilder.InitialCatalog = SQLDatabaseName
+                    If String.IsNullOrEmpty(SQLUsername) Then
+                        stringBuilder.IntegratedSecurity = True
+                    Else
+                        stringBuilder.UserID = SQLUsername
+                        stringBuilder.Password = SQLPassword
+                    End If
+
+                    _SqlConnection = New SqlConnection(stringBuilder.ConnectionString)
+                    Return _SqlConnection
+                End Get
+            End Property
+
+            Private Property DatabaseVersion() As System.Version
+                Get
+                    OpenConnection()
+
+                    sqlQuery = New SqlCommand("SELECT * FROM tblRoot", SqlConnection)
+                    Dim sqlDataReader As SqlDataReader = sqlQuery.ExecuteReader(CommandBehavior.CloseConnection)
+                    sqlDataReader.Read()
+
+                    Dim version As System.Version = sqlDataReader.Item("confVersion")
+
+                    sqlDataReader.Close()
+                    CloseConnection()
+
+                    Return version
+                End Get
+                Set(ByVal value As System.Version)
+
+                End Set
+            End Property
+#End Region
+
+#Region "Private Variables"
+            Private confVersion As Double
+
+            Private sqlQuery As SqlCommand
+            'Private sqlDataReader As SqlDataReader
+
+            Private gIndex As Integer = 0
+            Private parentID As String = 0
+#End Region
+
+#Region "Private Methods"
+
+#Region "SQL Server Connection"
+            Private Function OpenConnection() As Boolean
+                If SqlConnection Is Nothing Then Return False
+
+                ' Already open?
+                If Not (SqlConnection.State = ConnectionState.Closed Or SqlConnection.State = ConnectionState.Broken) Then Return True
+
+                While True
+                    Try
+                        SqlConnection.Open()
+                        Return True
+                    Catch ex As System.Exception
+                        If MessageBox.Show(String.Format(strErrorDatabaseOpenConnectionFailed, ex.Message, vbNewLine), My.Application.Info.ProductName, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error) = DialogResult.Cancel Then
+                            Return False
+                        End If
+                    End Try
+                End While
+            End Function
+
+            Private Sub CloseConnection()
+                If SqlConnection Is Nothing Then Return
+                If SqlConnection.State = ConnectionState.Closed Then Return
+                SqlConnection.Close()
+            End Sub
+#End Region
+
+#Region "Load"
             Private Delegate Sub AddNodeToTreeCB(ByVal TreeNode As TreeNode)
             Private Sub AddNodeToTree(ByVal TreeNode As TreeNode)
                 If Tree.Node.TreeView.InvokeRequired Then
@@ -575,55 +624,6 @@ Namespace Config
 #End Region
 
 #Region "Save"
-            Public Overrides Function Save() As Boolean
-                If Not OpenConnection() Then Return False
-
-                If Not VerifyDatabaseVersion(SqlConnection) Then
-                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, strErrorConnectionListSaveFailed)
-                    Return False
-                End If
-
-                Dim tN As TreeNode
-                tN = RootTreeNode.Clone
-
-                Dim strProtected As String
-                If tN.Tag IsNot Nothing Then
-                    If TryCast(tN.Tag, mRemoteNG.Root.Info).Password = True Then
-                        pW = TryCast(tN.Tag, mRemoteNG.Root.Info).PasswordString
-                        strProtected = Security.Crypt.Encrypt("ThisIsProtected", pW)
-                    Else
-                        strProtected = Security.Crypt.Encrypt("ThisIsNotProtected", pW)
-                    End If
-                Else
-                    strProtected = Security.Crypt.Encrypt("ThisIsNotProtected", pW)
-                End If
-
-                sqlQuery = New SqlCommand("DELETE FROM tblRoot", SqlConnection)
-                Dim sqlWr As Integer = sqlQuery.ExecuteNonQuery
-
-                sqlQuery = New SqlCommand("INSERT INTO tblRoot (Name, Export, Protected, ConfVersion) VALUES('" & EscapeSingleQuotes(tN.Text) & "', 0, '" & strProtected & "'," & App.Info.Connections.ConnectionFileVersion.ToString(CultureInfo.InvariantCulture) & ")", SqlConnection)
-                sqlWr = sqlQuery.ExecuteNonQuery
-
-                sqlQuery = New SqlCommand("DELETE FROM tblCons", SqlConnection)
-                sqlWr = sqlQuery.ExecuteNonQuery
-
-                Dim tNC As TreeNodeCollection
-                tNC = tN.Nodes
-
-                SaveNodesSQL(tNC)
-
-                sqlQuery = New SqlCommand("DELETE FROM tblUpdate", SqlConnection)
-                sqlWr = sqlQuery.ExecuteNonQuery
-                sqlQuery = New SqlCommand("INSERT INTO tblUpdate (LastUpdate) VALUES('" & Tools.Misc.DBDate(Now) & "')", SqlConnection)
-                sqlWr = sqlQuery.ExecuteNonQuery
-
-                CloseConnection()
-
-                SetMainFormText(My.Resources.strSQLServer)
-
-                Return True
-            End Function
-
             Private Sub SaveNodesSQL(ByVal treeNodes As TreeNodeCollection)
                 Dim data As New ColumnValueCollection
 
