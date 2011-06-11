@@ -88,30 +88,10 @@ Namespace Config
                     Dim sqlQuery As New SqlCommand(My.Resources.CreateTables, SqlConnection)
                     sqlQuery.ExecuteNonQuery()
 
-                    If RootTreeNode Is Nothing Then
-                        Tree.Node.ResetTree()
-                        RootTreeNode = Windows.treeForm.tvConnections.Nodes(0)
-                    End If
-                    Dim rootNode As TreeNode
-                    rootNode = RootTreeNode.Clone
-
-                    Dim strProtected As String
-                    If rootNode.Tag IsNot Nothing Then
-                        If TryCast(rootNode.Tag, mRemoteNG.Root.Info).Password = True Then
-                            pW = TryCast(rootNode.Tag, mRemoteNG.Root.Info).PasswordString
-                            strProtected = Security.Crypt.Encrypt("ThisIsProtected", pW)
-                        Else
-                            strProtected = Security.Crypt.Encrypt("ThisIsNotProtected", pW)
-                        End If
-                    Else
-                        strProtected = Security.Crypt.Encrypt("ThisIsNotProtected", pW)
-                    End If
-
                     Dim data As New ColumnValueCollection
-
-                    data.Add("Name", rootNode.Text)
+                    data.Add("Name", My.Resources.strConnections)
                     data.Add("Export", False, True)
-                    data.Add("Protected", strProtected)
+                    data.Add("Protected", Security.Crypt.Encrypt("ThisIsNotProtected", pW))
                     data.Add("ConfVersion", App.Info.Connections.ConnectionFileVersion.ToString(CultureInfo.InvariantCulture))
 
                     sqlQuery = New SqlCommand(String.Format(CultureInfo.InvariantCulture, "INSERT INTO tblRoot ({0}) VALUES({1})", data.ColumnsString, data.ValuesString), SqlConnection)
