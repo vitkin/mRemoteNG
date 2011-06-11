@@ -1940,7 +1940,7 @@ Public Class frmOptions
 
         Try
             mssql.CreateTables()
-            MessageBox.Show("The database tables were successfully created.", "Create Tables", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show("The database tables were successfully created.", "Create Tables", MessageBoxButtons.OK, MessageBoxIcon.Information)
         Catch ex As Exception
             MessageBox.Show(String.Format("CreateTables Failed. {0}", ex.Message), "Create Tables", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
