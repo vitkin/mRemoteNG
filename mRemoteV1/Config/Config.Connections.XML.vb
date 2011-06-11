@@ -10,10 +10,11 @@ Namespace Config
 #Region "Public Functions"
             Public Overrides Function Load() As Boolean
                 Dim strCons As String = DecryptCompleteFile()
-                LoadFromXML(strCons)
+                If Not LoadFromXML(strCons) Then Return False
 
                 If Not Import Then SetMainFormText(ConnectionFileName)
 
+                Return True
             End Function
 
             Public Overrides Function Save() As Boolean
@@ -80,10 +81,8 @@ Namespace Config
                 Return ""
             End Function
 
-            Private Sub LoadFromXML(Optional ByVal cons As String = "")
+            Private Function LoadFromXML(Optional ByVal cons As String = "") As Boolean
                 Try
-                    App.Runtime.IsConnectionsFileLoaded = False
-
                     ' SECTION 1. Create a DOM Document and load the XML data into it.
                     Me.xDom = New XmlDocument()
                     If cons <> "" Then
@@ -119,7 +118,7 @@ Namespace Config
                                 My.Settings.LoadConsFromCustomLocation = False
                                 My.Settings.CustomConsPath = ""
                                 rootNode.Remove()
-                                Exit Sub
+                                Exit Function
                             End If
                         End If
                     End If
@@ -135,7 +134,7 @@ Namespace Config
                     If Import = True And imp = False Then
                         MessageCollector.AddMessage(Messages.MessageClass.InformationMsg, My.Resources.strCannotImportNormalSessionFile)
 
-                        Exit Sub
+                        Exit Function
                     End If
 
                     If imp = False Then
@@ -168,13 +167,14 @@ Namespace Config
 
                     RootTreeNode.EnsureVisible()
 
-                    App.Runtime.IsConnectionsFileLoaded = True
                     App.Runtime.Windows.treeForm.InitialRefresh()
+
+                    Return True
                 Catch ex As Exception
-                    App.Runtime.IsConnectionsFileLoaded = False
                     MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, My.Resources.strLoadFromXmlFailed & vbNewLine & ex.Message, True)
+                    Return False
                 End Try
-            End Sub
+            End Function
 
             Private prevCont As Container.Info
             Private Sub AddNodeFromXML(ByRef inXmlNode As XmlNode, ByRef inTreeNode As TreeNode)
