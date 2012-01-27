@@ -109,6 +109,19 @@ Public Class frmOptions
     Friend WithEvents lblExperimental As System.Windows.Forms.Label
     Friend WithEvents lblSQLDatabaseName As System.Windows.Forms.Label
     Friend WithEvents txtSQLDatabaseName As System.Windows.Forms.TextBox
+    Friend WithEvents lblFontDescription As System.Windows.Forms.Label
+    Friend WithEvents btnSelectFont As System.Windows.Forms.Button
+    Friend WithEvents lblMainWindowBackground As System.Windows.Forms.Label
+    Friend WithEvents btnSelectImage As System.Windows.Forms.Button
+    Friend WithEvents btnSelectColor As System.Windows.Forms.Button
+    Friend WithEvents radBackgroundImage As System.Windows.Forms.RadioButton
+    Friend WithEvents radBackgroundSolid As System.Windows.Forms.RadioButton
+    Friend WithEvents radBackgroundDefault As System.Windows.Forms.RadioButton
+    Friend WithEvents CheckBox1 As System.Windows.Forms.CheckBox
+    Friend WithEvents lblBackgroundPreview As System.Windows.Forms.Label
+    Friend WithEvents cboImageLayout As System.Windows.Forms.ComboBox
+    Friend WithEvents lblDefaultFont As System.Windows.Forms.Label
+    Friend WithEvents CheckBox2 As System.Windows.Forms.CheckBox
     Private components As System.ComponentModel.IContainer
 
     Private Sub InitializeComponent()
@@ -197,6 +210,9 @@ Public Class frmOptions
         Me.tcTabControl = New System.Windows.Forms.TabControl()
         Me.tabStartupExit = New System.Windows.Forms.TabPage()
         Me.tabAppearance = New System.Windows.Forms.TabPage()
+        Me.lblFontDescription = New System.Windows.Forms.Label()
+        Me.btnSelectFont = New System.Windows.Forms.Button()
+        Me.lblMainWindowBackground = New System.Windows.Forms.Label()
         Me.tabTabsAndPanels = New System.Windows.Forms.TabPage()
         Me.tabConnections = New System.Windows.Forms.TabPage()
         Me.pnlDefaultCredentials = New System.Windows.Forms.Panel()
@@ -224,6 +240,16 @@ Public Class frmOptions
         Me.lblSQLPassword = New System.Windows.Forms.Label()
         Me.tabUpdates = New System.Windows.Forms.TabPage()
         Me.tabAdvanced = New System.Windows.Forms.TabPage()
+        Me.lblBackgroundPreview = New System.Windows.Forms.Label()
+        Me.CheckBox1 = New System.Windows.Forms.CheckBox()
+        Me.radBackgroundDefault = New System.Windows.Forms.RadioButton()
+        Me.radBackgroundSolid = New System.Windows.Forms.RadioButton()
+        Me.radBackgroundImage = New System.Windows.Forms.RadioButton()
+        Me.btnSelectColor = New System.Windows.Forms.Button()
+        Me.btnSelectImage = New System.Windows.Forms.Button()
+        Me.CheckBox2 = New System.Windows.Forms.CheckBox()
+        Me.lblDefaultFont = New System.Windows.Forms.Label()
+        Me.cboImageLayout = New System.Windows.Forms.ComboBox()
         CType(Me.numPuttyWaitTime, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.numUVNCSCPort, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.pnlProxy.SuspendLayout()
@@ -1005,6 +1031,19 @@ Public Class frmOptions
         '
         'tabAppearance
         '
+        Me.tabAppearance.Controls.Add(Me.cboImageLayout)
+        Me.tabAppearance.Controls.Add(Me.lblDefaultFont)
+        Me.tabAppearance.Controls.Add(Me.CheckBox2)
+        Me.tabAppearance.Controls.Add(Me.btnSelectImage)
+        Me.tabAppearance.Controls.Add(Me.btnSelectColor)
+        Me.tabAppearance.Controls.Add(Me.radBackgroundImage)
+        Me.tabAppearance.Controls.Add(Me.radBackgroundSolid)
+        Me.tabAppearance.Controls.Add(Me.radBackgroundDefault)
+        Me.tabAppearance.Controls.Add(Me.CheckBox1)
+        Me.tabAppearance.Controls.Add(Me.lblBackgroundPreview)
+        Me.tabAppearance.Controls.Add(Me.lblFontDescription)
+        Me.tabAppearance.Controls.Add(Me.btnSelectFont)
+        Me.tabAppearance.Controls.Add(Me.lblMainWindowBackground)
         Me.tabAppearance.Controls.Add(Me.lblLanguageRestartRequired)
         Me.tabAppearance.Controls.Add(Me.cboLanguage)
         Me.tabAppearance.Controls.Add(Me.lblLanguage)
@@ -1018,6 +1057,33 @@ Public Class frmOptions
         Me.tabAppearance.TabIndex = 1
         Me.tabAppearance.Text = "Appearance"
         Me.tabAppearance.UseVisualStyleBackColor = True
+        '
+        'lblFontDescription
+        '
+        Me.lblFontDescription.AutoSize = True
+        Me.lblFontDescription.Location = New System.Drawing.Point(119, 436)
+        Me.lblFontDescription.Name = "lblFontDescription"
+        Me.lblFontDescription.Size = New System.Drawing.Size(84, 13)
+        Me.lblFontDescription.TabIndex = 19
+        Me.lblFontDescription.Text = "Font Description"
+        '
+        'btnSelectFont
+        '
+        Me.btnSelectFont.Location = New System.Drawing.Point(3, 431)
+        Me.btnSelectFont.Name = "btnSelectFont"
+        Me.btnSelectFont.Size = New System.Drawing.Size(110, 23)
+        Me.btnSelectFont.TabIndex = 18
+        Me.btnSelectFont.Text = "Select Font..."
+        Me.btnSelectFont.UseVisualStyleBackColor = True
+        '
+        'lblMainWindowBackground
+        '
+        Me.lblMainWindowBackground.AutoSize = True
+        Me.lblMainWindowBackground.Location = New System.Drawing.Point(3, 243)
+        Me.lblMainWindowBackground.Name = "lblMainWindowBackground"
+        Me.lblMainWindowBackground.Size = New System.Drawing.Size(133, 13)
+        Me.lblMainWindowBackground.TabIndex = 8
+        Me.lblMainWindowBackground.Text = "Main Window Background"
         '
         'tabTabsAndPanels
         '
@@ -1341,6 +1407,106 @@ Public Class frmOptions
         Me.tabAdvanced.TabIndex = 5
         Me.tabAdvanced.Text = "Advanced"
         Me.tabAdvanced.UseVisualStyleBackColor = True
+        '
+        'lblBackgroundPreview
+        '
+        Me.lblBackgroundPreview.BackColor = System.Drawing.SystemColors.AppWorkspace
+        Me.lblBackgroundPreview.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle
+        Me.lblBackgroundPreview.Location = New System.Drawing.Point(3, 264)
+        Me.lblBackgroundPreview.Name = "lblBackgroundPreview"
+        Me.lblBackgroundPreview.Size = New System.Drawing.Size(73, 70)
+        Me.lblBackgroundPreview.TabIndex = 9
+        '
+        'CheckBox1
+        '
+        Me.CheckBox1.AutoSize = True
+        Me.CheckBox1.Location = New System.Drawing.Point(3, 223)
+        Me.CheckBox1.Name = "CheckBox1"
+        Me.CheckBox1.Size = New System.Drawing.Size(69, 17)
+        Me.CheckBox1.TabIndex = 7
+        Me.CheckBox1.Text = "SPACER"
+        Me.CheckBox1.UseVisualStyleBackColor = True
+        Me.CheckBox1.Visible = False
+        '
+        'radBackgroundDefault
+        '
+        Me.radBackgroundDefault.AutoSize = True
+        Me.radBackgroundDefault.Location = New System.Drawing.Point(85, 264)
+        Me.radBackgroundDefault.Name = "radBackgroundDefault"
+        Me.radBackgroundDefault.Size = New System.Drawing.Size(79, 17)
+        Me.radBackgroundDefault.TabIndex = 10
+        Me.radBackgroundDefault.TabStop = True
+        Me.radBackgroundDefault.Text = "Use default"
+        Me.radBackgroundDefault.UseVisualStyleBackColor = True
+        '
+        'radBackgroundSolid
+        '
+        Me.radBackgroundSolid.AutoSize = True
+        Me.radBackgroundSolid.Location = New System.Drawing.Point(85, 287)
+        Me.radBackgroundSolid.Name = "radBackgroundSolid"
+        Me.radBackgroundSolid.Size = New System.Drawing.Size(80, 17)
+        Me.radBackgroundSolid.TabIndex = 11
+        Me.radBackgroundSolid.TabStop = True
+        Me.radBackgroundSolid.Text = "Solid colour"
+        Me.radBackgroundSolid.UseVisualStyleBackColor = True
+        '
+        'radBackgroundImage
+        '
+        Me.radBackgroundImage.AutoSize = True
+        Me.radBackgroundImage.Location = New System.Drawing.Point(85, 339)
+        Me.radBackgroundImage.Name = "radBackgroundImage"
+        Me.radBackgroundImage.Size = New System.Drawing.Size(54, 17)
+        Me.radBackgroundImage.TabIndex = 13
+        Me.radBackgroundImage.TabStop = True
+        Me.radBackgroundImage.Text = "Image"
+        Me.radBackgroundImage.UseVisualStyleBackColor = True
+        '
+        'btnSelectColor
+        '
+        Me.btnSelectColor.Location = New System.Drawing.Point(105, 310)
+        Me.btnSelectColor.Name = "btnSelectColor"
+        Me.btnSelectColor.Size = New System.Drawing.Size(110, 23)
+        Me.btnSelectColor.TabIndex = 12
+        Me.btnSelectColor.Text = "Select Colour..."
+        Me.btnSelectColor.UseVisualStyleBackColor = True
+        '
+        'btnSelectImage
+        '
+        Me.btnSelectImage.Location = New System.Drawing.Point(105, 362)
+        Me.btnSelectImage.Name = "btnSelectImage"
+        Me.btnSelectImage.Size = New System.Drawing.Size(110, 23)
+        Me.btnSelectImage.TabIndex = 14
+        Me.btnSelectImage.Text = "Select Image..."
+        Me.btnSelectImage.UseVisualStyleBackColor = True
+        '
+        'CheckBox2
+        '
+        Me.CheckBox2.Location = New System.Drawing.Point(6, 391)
+        Me.CheckBox2.Name = "CheckBox2"
+        Me.CheckBox2.Size = New System.Drawing.Size(474, 17)
+        Me.CheckBox2.TabIndex = 16
+        Me.CheckBox2.Text = "SPACER"
+        Me.CheckBox2.UseVisualStyleBackColor = True
+        Me.CheckBox2.Visible = False
+        '
+        'lblDefaultFont
+        '
+        Me.lblDefaultFont.AutoSize = True
+        Me.lblDefaultFont.Location = New System.Drawing.Point(3, 415)
+        Me.lblDefaultFont.Name = "lblDefaultFont"
+        Me.lblDefaultFont.Size = New System.Drawing.Size(62, 13)
+        Me.lblDefaultFont.TabIndex = 17
+        Me.lblDefaultFont.Text = "Default font"
+        '
+        'cboImageLayout
+        '
+        Me.cboImageLayout.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cboImageLayout.FormattingEnabled = True
+        Me.cboImageLayout.Items.AddRange(New Object() {"Corner", "Tile", "Center", "Stretch", "Zoom"})
+        Me.cboImageLayout.Location = New System.Drawing.Point(227, 363)
+        Me.cboImageLayout.Name = "cboImageLayout"
+        Me.cboImageLayout.Size = New System.Drawing.Size(121, 21)
+        Me.cboImageLayout.TabIndex = 15
         '
         'frmOptions
         '
@@ -1895,8 +2061,25 @@ Public Class frmOptions
     End Sub
 #End Region
 
+    Private Sub btnSelectColor_Click(sender As System.Object, e As System.EventArgs) Handles btnSelectColor.Click
+        Dim dialog As New System.Windows.Forms.ColorDialog
+        dialog.Color = lblBackgroundPreview.BackColor
+        dialog.ShowDialog()
+        lblBackgroundPreview.BackColor = dialog.Color
+    End Sub
 
-    Private Sub lblProxyPort_Click(sender As System.Object, e As System.EventArgs) Handles lblProxyPort.Click
+    Private Sub btnSelectImage_Click(sender As System.Object, e As System.EventArgs) Handles btnSelectImage.Click
+        Dim dialog As New System.Windows.Forms.OpenFileDialog
+        dialog.ShowDialog()
+        lblBackgroundPreview.BackgroundImage = Image.FromFile(dialog.FileName)
+        lblBackgroundPreview.BackgroundImageLayout = ImageLayout.Tile
+    End Sub
 
+    Private Sub btnSelectFont_Click(sender As System.Object, e As System.EventArgs) Handles btnSelectFont.Click
+        Dim dialog As New System.Windows.Forms.FontDialog
+        dialog.AllowScriptChange = False
+        dialog.ShowEffects = False
+        dialog.ShowDialog()
+        lblFontDescription.Text = String.Format("{0}, {1}", dialog.Font.Name, dialog.Font.SizeInPoints)
     End Sub
 End Class
