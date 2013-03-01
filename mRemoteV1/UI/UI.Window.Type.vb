@@ -19,6 +19,7 @@ Namespace UI
             UltraVNCSC = 16
             ComponentsCheck = 17
             Announcement = 18
+            SearchResult = 19
         End Enum
     End Namespace
 End Namespace

@@ -16,6 +16,7 @@ Namespace UI
             Friend WithEvents cmenTab As System.Windows.Forms.ContextMenuStrip
             Private components As System.ComponentModel.IContainer
             Friend WithEvents cmenTabFullscreen As System.Windows.Forms.ToolStripMenuItem
+            Friend WithEvents cmenTabFullscreenReconnect As System.Windows.Forms.ToolStripMenuItem
             Friend WithEvents cmenTabScreenshot As System.Windows.Forms.ToolStripMenuItem
             Friend WithEvents cmenTabTransferFile As System.Windows.Forms.ToolStripMenuItem
             Friend WithEvents cmenTabSendSpecialKeys As System.Windows.Forms.ToolStripMenuItem
@@ -41,6 +42,7 @@ Namespace UI
                 Me.TabController = New Crownwood.Magic.Controls.TabControl
                 Me.cmenTab = New System.Windows.Forms.ContextMenuStrip(Me.components)
                 Me.cmenTabFullscreen = New System.Windows.Forms.ToolStripMenuItem
+                Me.cmenTabFullscreenReconnect = New System.Windows.Forms.ToolStripMenuItem
                 Me.cmenTabSmartSize = New System.Windows.Forms.ToolStripMenuItem
                 Me.cmenTabViewOnly = New System.Windows.Forms.ToolStripMenuItem
                 Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator
@@ -78,7 +80,7 @@ Namespace UI
                 '
                 'cmenTab
                 '
-                Me.cmenTab.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.cmenTabFullscreen, Me.cmenTabSmartSize, Me.cmenTabViewOnly, Me.ToolStripSeparator1, Me.cmenTabScreenshot, Me.cmenTabStartChat, Me.cmenTabTransferFile, Me.cmenTabRefreshScreen, Me.cmenTabSendSpecialKeys, Me.cmenTabPuttySettings, Me.cmenTabExternalApps, Me.cmenTabSep1, Me.cmenTabRenameTab, Me.cmenTabDuplicateTab, Me.cmenTabReconnect, Me.cmenTabDisconnect})
+                Me.cmenTab.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.cmenTabFullscreen, Me.cmenTabFullscreenReconnect, Me.cmenTabSmartSize, Me.cmenTabViewOnly, Me.ToolStripSeparator1, Me.cmenTabScreenshot, Me.cmenTabStartChat, Me.cmenTabTransferFile, Me.cmenTabRefreshScreen, Me.cmenTabSendSpecialKeys, Me.cmenTabPuttySettings, Me.cmenTabExternalApps, Me.cmenTabSep1, Me.cmenTabRenameTab, Me.cmenTabDuplicateTab, Me.cmenTabReconnect, Me.cmenTabDisconnect})
                 Me.cmenTab.Name = "cmenTab"
                 Me.cmenTab.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional
                 Me.cmenTab.Size = New System.Drawing.Size(202, 346)
@@ -89,6 +91,13 @@ Namespace UI
                 Me.cmenTabFullscreen.Name = "cmenTabFullscreen"
                 Me.cmenTabFullscreen.Size = New System.Drawing.Size(201, 22)
                 Me.cmenTabFullscreen.Text = "Fullscreen (RDP)"
+                '
+                'cmenTabFullscreenReconnect
+                '
+                Me.cmenTabFullscreenReconnect.Image = Global.mRemoteNG.My.Resources.Resources.Fullscreen
+                Me.cmenTabFullscreenReconnect.Name = "cmenTabFullscreenReconnect"
+                Me.cmenTabFullscreenReconnect.Size = New System.Drawing.Size(201, 22)
+                Me.cmenTabFullscreenReconnect.Text = "Fullscreen (RDP) & Reconnect"
                 '
                 'cmenTabSmartSize
                 '
@@ -293,6 +302,7 @@ Namespace UI
 
             Private Sub ApplyLanguage()
                 cmenTabFullscreen.Text = My.Language.strMenuFullScreenRDP
+                cmenTabFullscreenReconnect.Text = My.Language.strMenuFullScreenReconnectRDP
                 cmenTabSmartSize.Text = My.Language.strMenuSmartSize
                 cmenTabViewOnly.Text = My.Language.strMenuViewOnly
                 cmenTabScreenshot.Text = My.Language.strMenuScreenshot
@@ -423,13 +433,16 @@ Namespace UI
 
                     If IC.Info.Protocol = mRemoteNG.Connection.Protocol.Protocols.RDP Then
                         Me.cmenTabFullscreen.Enabled = True
+                        Me.cmenTabFullscreenReconnect.Enabled = True
                         Me.cmenTabSmartSize.Enabled = True
 
                         Dim rdp As mRemoteNG.Connection.Protocol.RDP = IC.Protocol
                         Me.cmenTabSmartSize.Checked = rdp.SmartSize
                         Me.cmenTabFullscreen.Checked = rdp.Fullscreen
+                        Me.cmenTabFullscreenReconnect.Checked = rdp.Fullscreen
                     Else
                         Me.cmenTabFullscreen.Enabled = False
+                        Me.cmenTabFullscreenReconnect.Enabled = False
                         Me.cmenTabSmartSize.Enabled = False
                     End If
 
@@ -480,7 +493,7 @@ Namespace UI
             End Sub
 
             Private Sub cmenTabReconnect_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmenTabReconnect.Click
-                Me.Reconnect()
+                Me.Reconnect(False)
             End Sub
 
             Private Sub cmenTabTransferFile_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmenTabTransferFile.Click
@@ -508,7 +521,11 @@ Namespace UI
             End Sub
 
             Private Sub cmenTabFullscreen_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmenTabFullscreen.Click
-                Me.ToggleFullscreen()
+                Me.ToggleFullscreen(False)
+            End Sub
+
+            Private Sub cmenTabFullscreenReconnect_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmenTabFullscreenReconnect.Click
+                Me.ToggleFullscreen(True)
             End Sub
 
             Private Sub cmenTabPuttySettings_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles cmenTabPuttySettings.Click
@@ -669,7 +686,7 @@ Namespace UI
                 End Try
             End Sub
 
-            Private Sub ToggleFullscreen()
+            Private Sub ToggleFullscreen(ByVal conReconnect As Boolean)
                 Try
                     If Me.TabController.SelectedTab IsNot Nothing Then
                         If TypeOf Me.TabController.SelectedTab.Tag Is mRemoteNG.Connection.InterfaceControl Then
@@ -678,6 +695,9 @@ Namespace UI
                             If TypeOf IC.Protocol Is mRemoteNG.Connection.Protocol.RDP Then
                                 Dim rdp As mRemoteNG.Connection.Protocol.RDP = IC.Protocol
                                 rdp.ToggleFullscreen()
+                                If conReconnect Then
+                                    Reconnect(conReconnect)
+                                End If
                             End If
                         End If
                     End If
@@ -769,7 +789,7 @@ Namespace UI
                 End Try
             End Sub
 
-            Private Sub Reconnect()
+            Private Sub Reconnect(ByVal Fullscreen As Boolean)
                 Try
                     If Me.TabController.SelectedTab IsNot Nothing Then
                         If TypeOf Me.TabController.SelectedTab.Tag Is mRemoteNG.Connection.InterfaceControl Then
@@ -778,7 +798,12 @@ Namespace UI
 
                             IC.Protocol.Close()
 
-                            App.Runtime.OpenConnection(conI, mRemoteNG.Connection.Info.Force.DoNotJump)
+                            If Fullscreen Then
+                                App.Runtime.OpenConnection(conI, mRemoteNG.Connection.Info.Force.Fullscreen + mRemoteNG.Connection.Info.Force.DoNotJump)
+                            Else
+                                App.Runtime.OpenConnection(conI, mRemoteNG.Connection.Info.Force.DoNotJump)
+                            End If
+
                         End If
                     End If
                 Catch ex As Exception

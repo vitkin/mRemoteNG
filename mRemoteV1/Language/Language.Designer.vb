@@ -555,7 +555,7 @@ Namespace My
         '''  Looks up a localized string similar to The (RDP) Sessions feature requires that you have a registered copy of eolwtscom.dll on your system.
         '''mRemoteNG ships with this component but will not register it automatically unless you run the setup package.
         '''To do register it manually do this: Open up the run dialog (Start - Run) and enter the following: regsvr32 &quot;c:\Program Files\mRemoteNG\eolwtscom.dll&quot; (Where c:\Program Files\mRemoteNG\ is the path to your mRemoteNG installation).
-        '''If you are still not able to pass this check or use the (RDP) Session [rest of string was truncated]&quot;;.
+        '''If you are still not able to pass this check or use the (RDP) Sessions f [rest of string was truncated]&quot;;.
         '''</summary>
         Friend Shared ReadOnly Property strCcEOLFailed() As String
             Get
@@ -576,7 +576,7 @@ Namespace My
         '''  Looks up a localized string similar to To use the Gecko Rendering Engine you need to have XULrunner 1.8.1.x and the path to the installation set in your Options.
         '''You can download XULrunner 1.8.1.3 here: ftp://ftp.mozilla.org/pub/xulrunner/releases/1.8.1.3/contrib/win32/
         '''When you are finished downloading extract the package to a path of your choice. Then in mRemoteNG go to Tools - Options - Advanced and enter the correct path in the XULrunner path field.
-        '''If you are still not able to pass this check or use the Gecko Engine in mRemoteNG please c [rest of string was truncated]&quot;;.
+        '''If you are still not able to pass this check or use the Gecko Engine in mRemoteNG please cons [rest of string was truncated]&quot;;.
         '''</summary>
         Friend Shared ReadOnly Property strCcGeckoFailed() As String
             Get
@@ -596,7 +596,7 @@ Namespace My
         '''<summary>
         '''  Looks up a localized string similar to ICA requires that the XenDesktop Online Plugin is installed and that the wfica.ocx library is registered. You can download the client here: http://www.citrix.com/download/
         '''If you have the XenDesktop Online Plugin installed and the check still fails, try to register wfica.ocx manually.
-        '''To do this open up the run dialog (Start - Run) and enter the following: regsvr32 &quot;c:\Program Files\Citrix\ICA Client\wfica.ocx&quot; (Where c:\Program Files\Citrix\ICA Client\ is the path to your XenDesktop Online Plugin install [rest of string was truncated]&quot;;.
+        '''To do this open up the run dialog (Start - Run) and enter the following: regsvr32 &quot;c:\Program Files\Citrix\ICA Client\wfica.ocx&quot; (Where c:\Program Files\Citrix\ICA Client\ is the path to your XenDesktop Online Plugin installat [rest of string was truncated]&quot;;.
         '''</summary>
         Friend Shared ReadOnly Property strCcICAFailed() As String
             Get
@@ -645,7 +645,7 @@ Namespace My
         '''<summary>
         '''  Looks up a localized string similar to For RDP to work properly you need to have at least Remote Desktop Connection (Terminal Services Client) 6.1 installed. You can get it here: http://support.microsoft.com/kb/951616
         '''If you have RDP 6.1 installed and the check still fails, try to register mstscax.dll manually. To do this open up the run dialog (Start - Run) and enter the following: regsvr32 &quot;c:\windows\system32\mstscax.dll&quot; (Where c:\ is your system drive).
-        '''If you still have trouble getting RDP to work please consult the mRemoteNG Forum at ht [rest of string was truncated]&quot;;.
+        '''If you still have trouble getting RDP to work please consult the mRemoteNG Forum at http [rest of string was truncated]&quot;;.
         '''</summary>
         Friend Shared ReadOnly Property strCcRDPFailed() As String
             Get
@@ -2677,6 +2677,15 @@ Namespace My
         Friend Shared ReadOnly Property strMenuFullScreenRDP() As String
             Get
                 Return ResourceManager.GetString("strMenuFullScreenRDP", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized string similar to Full Screen (RDP) + Reconnect.
+        '''</summary>
+        Friend Shared ReadOnly Property strMenuFullScreenReconnectRDP() As String
+            Get
+                Return ResourceManager.GetString("strMenuFullScreenReconnectRDP", resourceCulture)
             End Get
         End Property
         

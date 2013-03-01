@@ -53,51 +53,51 @@ Namespace UI
             Friend WithEvents mMenAddFolder As System.Windows.Forms.ToolStripMenuItem
             Public WithEvents tvConnections As System.Windows.Forms.TreeView
             Private Sub InitializeComponent()
-                Me.components = New System.ComponentModel.Container
+                Me.components = New System.ComponentModel.Container()
                 Dim TreeNode1 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Connections")
-                Me.tvConnections = New System.Windows.Forms.TreeView
+                Me.tvConnections = New System.Windows.Forms.TreeView()
                 Me.cMenTree = New System.Windows.Forms.ContextMenuStrip(Me.components)
-                Me.cMenTreeAddConnection = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeAddFolder = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeSep1 = New System.Windows.Forms.ToolStripSeparator
-                Me.cMenTreeConnect = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeConnectWithOptions = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeConnectWithOptionsConnectToConsoleSession = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeConnectWithOptionsDontConnectToConsoleSession = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeConnectWithOptionsConnectInFullscreen = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeConnectWithOptionsChoosePanelBeforeConnecting = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeDisconnect = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeSep2 = New System.Windows.Forms.ToolStripSeparator
-                Me.cMenTreeToolsTransferFile = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsImportExport = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsImportExportExportmRemoteXML = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsImportExportImportmRemoteXML = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsImportExportSep1 = New System.Windows.Forms.ToolStripSeparator
-                Me.cMenTreeToolsImportExportImportFromAD = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsImportExportImportFromRDPFiles = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsImportExportImportFromPortScan = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsSort = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsSortAscending = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsSortDescending = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeToolsExternalApps = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeSep3 = New System.Windows.Forms.ToolStripSeparator
-                Me.cMenTreeDuplicate = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeRename = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeDelete = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeSep4 = New System.Windows.Forms.ToolStripSeparator
-                Me.cMenTreeMoveUp = New System.Windows.Forms.ToolStripMenuItem
-                Me.cMenTreeMoveDown = New System.Windows.Forms.ToolStripMenuItem
+                Me.cMenTreeAddConnection = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeAddFolder = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeSep1 = New System.Windows.Forms.ToolStripSeparator()
+                Me.cMenTreeConnect = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeConnectWithOptions = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeConnectWithOptionsConnectToConsoleSession = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeConnectWithOptionsDontConnectToConsoleSession = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeConnectWithOptionsConnectInFullscreen = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeConnectWithOptionsChoosePanelBeforeConnecting = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeDisconnect = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeSep2 = New System.Windows.Forms.ToolStripSeparator()
+                Me.cMenTreeToolsTransferFile = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsImportExport = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsImportExportExportmRemoteXML = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsImportExportImportmRemoteXML = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsImportExportSep1 = New System.Windows.Forms.ToolStripSeparator()
+                Me.cMenTreeToolsImportExportImportFromAD = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsImportExportImportFromRDPFiles = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsImportExportImportFromPortScan = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsSort = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsSortAscending = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsSortDescending = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeToolsExternalApps = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeSep3 = New System.Windows.Forms.ToolStripSeparator()
+                Me.cMenTreeDuplicate = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeRename = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeDelete = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeSep4 = New System.Windows.Forms.ToolStripSeparator()
+                Me.cMenTreeMoveUp = New System.Windows.Forms.ToolStripMenuItem()
+                Me.cMenTreeMoveDown = New System.Windows.Forms.ToolStripMenuItem()
                 Me.imgListTree = New System.Windows.Forms.ImageList(Me.components)
-                Me.pnlConnections = New System.Windows.Forms.Panel
-                Me.PictureBox1 = New System.Windows.Forms.PictureBox
-                Me.txtSearch = New System.Windows.Forms.TextBox
-                Me.msMain = New System.Windows.Forms.MenuStrip
-                Me.mMenAddConnection = New System.Windows.Forms.ToolStripMenuItem
-                Me.mMenAddFolder = New System.Windows.Forms.ToolStripMenuItem
-                Me.mMenView = New System.Windows.Forms.ToolStripMenuItem
-                Me.mMenViewExpandAllFolders = New System.Windows.Forms.ToolStripMenuItem
-                Me.mMenViewCollapseAllFolders = New System.Windows.Forms.ToolStripMenuItem
-                Me.mMenSortAscending = New System.Windows.Forms.ToolStripMenuItem
+                Me.pnlConnections = New System.Windows.Forms.Panel()
+                Me.PictureBox1 = New System.Windows.Forms.PictureBox()
+                Me.txtSearch = New System.Windows.Forms.TextBox()
+                Me.msMain = New System.Windows.Forms.MenuStrip()
+                Me.mMenAddConnection = New System.Windows.Forms.ToolStripMenuItem()
+                Me.mMenAddFolder = New System.Windows.Forms.ToolStripMenuItem()
+                Me.mMenView = New System.Windows.Forms.ToolStripMenuItem()
+                Me.mMenViewExpandAllFolders = New System.Windows.Forms.ToolStripMenuItem()
+                Me.mMenViewCollapseAllFolders = New System.Windows.Forms.ToolStripMenuItem()
+                Me.mMenSortAscending = New System.Windows.Forms.ToolStripMenuItem()
                 Me.cMenTree.SuspendLayout()
                 Me.pnlConnections.SuspendLayout()
                 CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -108,8 +108,8 @@ Namespace UI
                 '
                 Me.tvConnections.AllowDrop = True
                 Me.tvConnections.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-                            Or System.Windows.Forms.AnchorStyles.Left) _
-                            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Left) _
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
                 Me.tvConnections.BorderStyle = System.Windows.Forms.BorderStyle.None
                 Me.tvConnections.ContextMenuStrip = Me.cMenTree
                 Me.tvConnections.HideSelection = False
@@ -157,7 +157,7 @@ Namespace UI
                 Me.cMenTreeConnect.Image = Global.mRemoteNG.My.Resources.Resources.Play
                 Me.cMenTreeConnect.Name = "cMenTreeConnect"
                 Me.cMenTreeConnect.ShortcutKeys = CType(((System.Windows.Forms.Keys.Control Or System.Windows.Forms.Keys.Shift) _
-                            Or System.Windows.Forms.Keys.C), System.Windows.Forms.Keys)
+                    Or System.Windows.Forms.Keys.C), System.Windows.Forms.Keys)
                 Me.cMenTreeConnect.Size = New System.Drawing.Size(186, 22)
                 Me.cMenTreeConnect.Text = "Connect"
                 '
@@ -348,8 +348,8 @@ Namespace UI
                 'pnlConnections
                 '
                 Me.pnlConnections.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
-                            Or System.Windows.Forms.AnchorStyles.Left) _
-                            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Left) _
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
                 Me.pnlConnections.Controls.Add(Me.PictureBox1)
                 Me.pnlConnections.Controls.Add(Me.txtSearch)
                 Me.pnlConnections.Controls.Add(Me.tvConnections)
@@ -372,7 +372,7 @@ Namespace UI
                 'txtSearch
                 '
                 Me.txtSearch.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
-                            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
                 Me.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.None
                 Me.txtSearch.Location = New System.Drawing.Point(21, 412)
                 Me.txtSearch.Name = "txtSearch"
@@ -1210,8 +1210,23 @@ Namespace UI
                         Me.tvConnections.SelectedNode = Me.tvConnections.SelectedNode.PrevVisibleNode
                     ElseIf e.KeyCode = Keys.Down Then
                         Me.tvConnections.SelectedNode = Me.tvConnections.SelectedNode.NextVisibleNode
+                    ElseIf e.KeyCode = Keys.Enter Then
+                        Dim results As New List(Of TreeNode)
+                        results = mRemoteNG.Tree.Node.MultiFind(Me.tvConnections.Nodes(0), Me.txtSearch.Text, results)
+
+                        Windows.SearchResultForm.lvSearchResults.Items.Clear()
+                        Windows.SearchResultForm.Results = results
+
+                        For Each result As TreeNode In results
+                            Dim lvItem As New ListViewItem
+                            lvItem.ImageIndex = result.SelectedImageIndex
+                            lvItem.Name = result.FullPath
+                            lvItem.Text = result.FullPath
+                            Windows.SearchResultForm.lvSearchResults.Items.Add(lvItem)
+                        Next
+                        Windows.SearchResultPanel.Show(frmMain.pnlDock)
                     Else
-                        Me.tvConnections_KeyDown(sender, e)
+                            Me.tvConnections_KeyDown(sender, e)
                     End If
                 Catch ex As Exception
                     MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, "txtSearch_KeyDown (UI.Window.Tree) failed" & vbNewLine & ex.Message, True)

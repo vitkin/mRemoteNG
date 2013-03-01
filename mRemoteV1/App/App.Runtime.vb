@@ -261,6 +261,8 @@ Namespace App
             Public Shared componentscheckPanel As New DockContent
             Public Shared AnnouncementForm As UI.Window.Announcement
             Public Shared AnnouncementPanel As New DockContent
+            Public Shared SearchResultForm As UI.Window.SearchResults
+            Public Shared SearchResultPanel As New DockContent
 
             Public Shared Sub Show(ByVal WindowType As UI.Window.Type, Optional ByVal PortScanMode As Tools.PortScan.PortScanMode = Tools.PortScan.PortScanMode.Normal)
                 Try
@@ -323,6 +325,13 @@ Namespace App
                             Windows.AnnouncementPanel = Windows.AnnouncementForm
 
                             Windows.AnnouncementForm.Show(frmMain.pnlDock)
+                        Case UI.Window.Type.SearchResult
+                            Windows.SearchResultForm = New UI.Window.SearchResults(Windows.SearchResultPanel)
+                            Windows.SearchResultPanel = Windows.SearchResultForm
+
+                            Windows.SearchResultForm.Show(frmMain.pnlDock)
+                            'Aqui define painel Windows.
+
                     End Select
                 Catch ex As Exception
                     MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, "Show (App.Runtime.Windows) failed" & vbNewLine & ex.Message, True)
@@ -407,6 +416,10 @@ Namespace App
 
                 Windows.AnnouncementForm = New UI.Window.Announcement(Windows.AnnouncementPanel)
                 Windows.AnnouncementPanel = Windows.AnnouncementForm
+
+                Windows.SearchResultForm = New UI.Window.SearchResults(Windows.SearchResultPanel)
+                Windows.SearchResultPanel = Windows.SearchResultForm
+
             End Sub
 
             Public Shared Sub SetDefaultLayout()

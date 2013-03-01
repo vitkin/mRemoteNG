@@ -323,6 +323,9 @@
     <Compile Include="UI\UI.Window.ScreenshotManager.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="UI\UI.Window.SearchResult.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="UI\UI.Window.Sessions.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -370,9 +373,9 @@
     <EmbeddedResource Include="Language\Language.pt.resx" />
     <EmbeddedResource Include="Language\Language.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Language.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My</CustomToolNamespace>
       <SubType>Designer</SubType>
+      <LastGenOutput>Language.Designer.vb</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Language\Language.fr.resx">
       <SubType>Designer</SubType>
@@ -452,6 +455,9 @@
     <EmbeddedResource Include="UI\UI.Window.ScreenshotManager.resx">
       <DependentUpon>UI.Window.ScreenshotManager.vb</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\UI.Window.SearchResult.resx">
+      <DependentUpon>UI.Window.SearchResult.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\UI.Window.Sessions.resx">
       <DependentUpon>UI.Window.Sessions.vb</DependentUpon>
@@ -996,6 +1002,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="My Project\DataSources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

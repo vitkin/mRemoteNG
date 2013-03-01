@@ -460,6 +460,17 @@ Public Class frmMain
         End If
     End Sub
 
+    Private Sub mMenViewSearchResult_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles mMenViewSearchResult.Click
+        If Me.mMenViewSearchResult.Checked = False Then
+            Windows.SearchResultPanel.Show(Me.pnlDock)
+            Me.mMenViewSearchResult.Checked = True
+        Else
+            Windows.SearchResultPanel.Hide()
+            Me.mMenViewSearchResult.Checked = False
+        End If
+    End Sub
+
+
     Private Sub mMenViewJumpToConnectionsConfig_Click(ByVal sender As Object, ByVal e As System.EventArgs) Handles mMenViewJumpToConnectionsConfig.Click
         If pnlDock.ActiveContent Is Windows.treePanel Then
             Windows.configForm.Activate()

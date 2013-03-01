@@ -55,7 +55,7 @@ Namespace Tree
         End Function
 
         Public Shared Function GetNodeFromPositionID(ByVal id As Integer) As TreeNode
-            For Each conI As Connection.Info In connectionList
+            For Each conI As Connection.Info In ConnectionList
                 If conI.PositionID = id Then
                     If conI.IsContainer Then
                         Return TryCast(conI.Parent, Container.Info).TreeNode
@@ -69,7 +69,7 @@ Namespace Tree
         End Function
 
         Public Shared Function GetNodeFromConstantID(ByVal id As String) As TreeNode
-            For Each conI As Connection.Info In connectionList
+            For Each conI As Connection.Info In ConnectionList
                 If conI.ConstantID = id Then
                     If conI.IsContainer Then
                         Return TryCast(conI.Parent, Container.Info).TreeNode
@@ -142,6 +142,24 @@ Namespace Tree
             End Try
 
             Return Nothing
+        End Function
+
+        Public Shared Function MultiFind(ByVal treeNode As TreeNode, ByVal searchFor As String, resultsList As List(Of TreeNode)) As List(Of TreeNode)
+
+            Try
+                If InStr(LCase(treeNode.Text), LCase(searchFor)) > 0 Then
+                    resultsList.Add(treeNode)
+                End If
+
+                For Each childNode As TreeNode In treeNode.Nodes
+                    MultiFind(childNode, searchFor, resultsList)
+                Next
+
+            Catch ex As Exception
+                MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, "MultiFind node failed" & vbNewLine & ex.Message, True)
+            End Try
+
+            Return resultsList
         End Function
 
         Public Shared Function Find(ByVal treeNode As TreeNode, ByVal conInfo As Connection.Info) As TreeNode
@@ -232,7 +250,7 @@ Namespace Tree
                 nContI.TreeNode.Text = strDisplayName
 
                 adCNode.Tag = nContI
-                containerList.Add(nContI)
+                ContainerList.Add(nContI)
 
 
                 CreateADSubNodes(adCNode, ldapPath)
@@ -287,7 +305,7 @@ Namespace Tree
                     nConI.TreeNode = adNode
                     adNode.Tag = nConI 'set the nodes tag to the conI
                     'add connection to connections
-                    connectionList.Add(nConI)
+                    ConnectionList.Add(nConI)
 
                     rNode.Nodes.Add(adNode)
                 Next

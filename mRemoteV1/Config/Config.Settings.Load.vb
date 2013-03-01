@@ -261,6 +261,11 @@ Namespace Config
                     If persistString = GetType(UI.Window.ScreenshotManager).ToString Then
                         Return Windows.screenshotPanel
                     End If
+
+                    If persistString = GetType(UI.Window.SearchResults).ToString Then
+                        Return Windows.SearchResultPanel
+                    End If
+
                 Catch ex As Exception
                     App.Runtime.log.Error("GetContentFromPersistString failed" & vbNewLine & ex.Message)
                     'mC.AddMessage(Messages.MessageClass.ErrorMsg, "GetContentFromPersistString failed" & vbNewLine & ex.Message, True)

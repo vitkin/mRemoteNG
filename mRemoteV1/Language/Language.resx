@@ -1003,6 +1003,9 @@ See the Microsoft Support article at http://support.microsoft.com/kb/811833 for 
   <data name="strMenuFullScreenRDP" xml:space="preserve">
     <value>Full Screen (RDP)</value>
   </data>
+  <data name="strMenuFullScreenReconnectRDP" xml:space="preserve">
+    <value>Full Screen (RDP) + Reconnect</value>
+  </data>
   <data name="strMenuHelp" xml:space="preserve">
     <value>&amp;Help</value>
   </data>

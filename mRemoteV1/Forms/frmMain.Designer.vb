@@ -72,6 +72,7 @@ Partial Class frmMain
         Me.mMenViewSessions = New System.Windows.Forms.ToolStripMenuItem
         Me.mMenViewErrorsAndInfos = New System.Windows.Forms.ToolStripMenuItem
         Me.mMenViewScreenshotManager = New System.Windows.Forms.ToolStripMenuItem
+        Me.mMenViewSearchResult = New System.Windows.Forms.ToolStripMenuItem
         Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator
         Me.mMenViewJumpTo = New System.Windows.Forms.ToolStripMenuItem
         Me.mMenViewJumpToConnectionsConfig = New System.Windows.Forms.ToolStripMenuItem
@@ -353,7 +354,7 @@ Partial Class frmMain
         '
         'mMenView
         '
-        Me.mMenView.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mMenViewAddConnectionPanel, Me.mMenViewConnectionPanels, Me.mMenViewSep1, Me.mMenViewConnections, Me.mMenViewConfig, Me.mMenViewSessions, Me.mMenViewErrorsAndInfos, Me.mMenViewScreenshotManager, Me.ToolStripSeparator1, Me.mMenViewJumpTo, Me.mMenViewResetLayout, Me.mMenViewSep2, Me.mMenViewQuickConnectToolbar, Me.mMenViewExtAppsToolbar, Me.mMenViewSep3, Me.mMenViewFullscreen})
+        Me.mMenView.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.mMenViewAddConnectionPanel, Me.mMenViewConnectionPanels, Me.mMenViewSep1, Me.mMenViewConnections, Me.mMenViewConfig, Me.mMenViewSessions, Me.mMenViewErrorsAndInfos, Me.mMenViewScreenshotManager, Me.mMenViewSearchResult, Me.ToolStripSeparator1, Me.mMenViewJumpTo, Me.mMenViewResetLayout, Me.mMenViewSep2, Me.mMenViewQuickConnectToolbar, Me.mMenViewExtAppsToolbar, Me.mMenViewSep3, Me.mMenViewFullscreen})
         Me.mMenView.Name = "mMenView"
         Me.mMenView.Size = New System.Drawing.Size(44, 20)
         Me.mMenView.Text = "&View"
@@ -419,6 +420,13 @@ Partial Class frmMain
         Me.mMenViewScreenshotManager.Name = "mMenViewScreenshotManager"
         Me.mMenViewScreenshotManager.Size = New System.Drawing.Size(228, 22)
         Me.mMenViewScreenshotManager.Text = "Screenshot Manager"
+        '
+        'mMenViewSearchResult
+        '
+        Me.mMenViewSearchResult.Image = CType(resources.GetObject("mMenViewScreenshotManager.Image"), System.Drawing.Image)
+        Me.mMenViewSearchResult.Name = "mMenViewSearchResult"
+        Me.mMenViewSearchResult.Size = New System.Drawing.Size(228, 22)
+        Me.mMenViewSearchResult.Text = "Search Result"
         '
         'ToolStripSeparator1
         '
@@ -851,6 +859,7 @@ Partial Class frmMain
     Friend WithEvents mMenViewConfig As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mMenViewErrorsAndInfos As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mMenViewScreenshotManager As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents mMenViewSearchResult As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents mMenViewAddConnectionPanel As System.Windows.Forms.ToolStripMenuItem
     Friend WithEvents cmbQuickConnect As System.Windows.Forms.ToolStripComboBox
     Friend WithEvents mMenViewSep2 As System.Windows.Forms.ToolStripSeparator
