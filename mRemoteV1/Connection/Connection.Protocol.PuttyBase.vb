@@ -18,10 +18,6 @@ Namespace Connection
             Private Const IDM_RECONF As Int32 = &H50 ' PuTTY Settings Menu ID
 #End Region
 
-#Region "Private Properties"
-            Dim _isPuttyNg As Boolean
-#End Region
-
 #Region "Public Properties"
             Private _PuttyProtocol As Putty_Protocol
             Public Property PuttyProtocol() As Putty_Protocol
@@ -97,8 +93,6 @@ Namespace Connection
 
             Public Overrides Function Connect() As Boolean
                 Try
-                    _isPuttyNg = (PuttyTypeDetector.GetPuttyType() = PuttyTypeDetector.PuttyType.PuttyNg)
-
                     PuttyProcess = New Process
                     With PuttyProcess.StartInfo
                         .UseShellExecute = False
@@ -147,10 +141,6 @@ Namespace Connection
                             arguments.Add(InterfaceControl.Info.Hostname)
                         End If
 
-                        If _isPuttyNg Then
-                            arguments.Add("-hwndparent", InterfaceControl.Handle.ToString())
-                        End If
-
                         .Arguments = arguments.ToString
                     End With
 
@@ -162,18 +152,20 @@ Namespace Connection
 
                     Dim startTicks As Integer = Environment.TickCount
                     While PuttyHandle.ToInt32 = 0 And Environment.TickCount < startTicks + (My.Settings.MaxPuttyWaitTime * 1000)
-                        If _isPuttyNg Then
-                            PuttyHandle = FindWindowEx(InterfaceControl.Handle, 0, vbNullString, vbNullString)
-                        Else
-                            PuttyProcess.Refresh()
-                            PuttyHandle = PuttyProcess.MainWindowHandle
-                        End If
+                        PuttyProcess.Refresh()
+                        PuttyHandle = PuttyProcess.MainWindowHandle
                         If PuttyHandle.ToInt32 = 0 Then Thread.Sleep(0)
                     End While
 
-                    If Not _isPuttyNg Then
-                        SetParent(PuttyHandle, InterfaceControl.Handle)
-                    End If
+                    Dim puttyWindowStyle As Int32 = GetWindowLong(PuttyHandle, GWL_STYLE)
+                    puttyWindowStyle = puttyWindowStyle And Not WS_POPUP
+                    puttyWindowStyle = puttyWindowStyle And Not WS_OVERLAPPEDWINDOW
+                    puttyWindowStyle = puttyWindowStyle Or WS_CHILD
+                    SetWindowLong(PuttyHandle, GWL_STYLE, puttyWindowStyle)
+
+                    SetParent(PuttyHandle, InterfaceControl.Handle)
+
+                    SetWindowLong(InterfaceControl.Handle, GWL_STYLE, GetWindowLong(InterfaceControl.Handle, GWL_STYLE) Or WS_CLIPCHILDREN)
 
                     MessageCollector.AddMessage(MessageClass.InformationMsg, My.Language.strPuttyStuff, True)
 
@@ -193,10 +185,9 @@ Namespace Connection
 
             Public Overrides Sub Focus()
                 Try
-                    If ConnectionWindow.InTabDrag Then Return
-                    SetForegroundWindow(PuttyHandle)
+                    If Not GetFocus() = PuttyHandle Then SetFocus(PuttyHandle)
                 Catch ex As Exception
-                    MessageCollector.AddMessage(Messages.MessageClass.ErrorMsg, My.Language.strPuttyFocusFailed & vbNewLine & ex.Message, True)
+                    MessageCollector.AddExceptionMessage(My.Language.strPuttyFocusFailed, ex, , True)
                 End Try
             End Sub
 

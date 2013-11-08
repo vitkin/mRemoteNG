@@ -2,6 +2,11 @@
 
 Namespace App
     Public Class Native
+        ' ReSharper disable InconsistentNaming
+        ' ReSharper disable IdentifierTypo
+        ' ReSharper disable StringLiteralTypo
+        ' ReSharper disable CommentTypo
+
         Private Sub New()
             ' Fix Warning 292 CA1053 : Microsoft.Design : Because type 'Native' contains only 'static' ('Shared' in Visual Basic) members, add a default private constructor to prevent the compiler from adding a default public constructor.
         End Sub
@@ -9,6 +14,10 @@ Namespace App
 #Region "Functions"
         <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
         Public Shared Function AppendMenu(ByVal hMenu As IntPtr, ByVal uFlags As Int32, ByVal uIDNewItem As IntPtr, ByVal lpNewItem As String) As Boolean
+        End Function
+
+        <DllImport("user32.dll", SetLastError:=False, CharSet:=CharSet.Auto)> _
+        Public Shared Function AttachThreadInput(ByVal idAttach As UInt32, ByVal idAttachTo As UInt32, ByVal fAttach As Boolean) As Boolean
         End Function
 
         <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
@@ -20,7 +29,19 @@ Namespace App
         End Function
 
         <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
+        Public Shared Function GetFocus() As IntPtr
+        End Function
+
+        <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
         Public Shared Function GetForegroundWindow() As IntPtr
+        End Function
+
+        <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
+        Public Shared Function GetWindowLong(ByVal hWnd As IntPtr, ByVal nIndex As Integer) As Int32
+        End Function
+
+        <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
+        Public Shared Function GetWindowThreadProcessId(ByVal hWnd As IntPtr, ByRef lpdwProcessId As UInt32) As UInt32
         End Function
 
         <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
@@ -49,6 +70,10 @@ Namespace App
 
         <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
         Public Shared Function SetClipboardViewer(ByVal hWndNewViewer As IntPtr) As IntPtr
+        End Function
+
+        <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
+        Public Shared Function SetFocus(ByVal hWnd As IntPtr) As IntPtr
         End Function
 
         <DllImport("user32.dll", SetLastError:=True, CharSet:=CharSet.Auto)> _
@@ -113,7 +138,6 @@ Namespace App
         Public Shared Function HIWORD(ByRef value As IntPtr) As Int32
             Return HIWORD(value.ToInt32)
         End Function
-
 #End Region
 
 #Region "Constants"
@@ -165,6 +189,7 @@ Namespace App
         Public Const WM_GETTEXT As Integer = &HD
         Public Const WM_CLOSE As Integer = &H10
         Public Const WM_ACTIVATEAPP As Integer = &H1C
+        Public Const WM_SETCURSOR As Integer = &H20
         Public Const WM_MOUSEACTIVATE As Integer = &H21
         Public Const WM_WINDOWPOSCHANGED As Integer = &H47
         Public Const WM_KEYDOWN As Integer = &H100
@@ -186,9 +211,18 @@ Namespace App
         Public Const WM_CHANGECBCHAIN As Integer = &H30D
 
         ' Window Styles
+        Public Const WS_OVERLAPPED As Integer = &H0
+        Public Const WS_MAXIMIZEBOX As Integer = &H10000
+        Public Const WS_MINIMIZEBOX As Integer = &H20000
+        Public Const WS_THICKFRAME As Integer = &H40000
+        Public Const WS_SYSMENU As Integer = &H80000
+        Public Const WS_CAPTION As Integer = &HC00000
+        Public Const WS_OVERLAPPEDWINDOW As Integer = (WS_OVERLAPPED Or WS_CAPTION Or WS_SYSMENU Or WS_THICKFRAME Or WS_MINIMIZEBOX Or WS_MAXIMIZEBOX)
         Public Const WS_MAXIMIZE As Integer = &H1000000
+        Public Const WS_CLIPCHILDREN As Integer = &H2000000
         Public Const WS_VISIBLE As Integer = &H10000000
         Public Const WS_CHILD As Integer = &H40000000
+        Public Const WS_POPUP As Integer = &H80000000
         Public Const WS_EX_MDICHILD As Integer = &H40
 
         ' Virtual Key Codes
