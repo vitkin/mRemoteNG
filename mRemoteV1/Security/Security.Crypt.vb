@@ -15,12 +15,12 @@ Namespace Security
 
                 Dim md5 As New MD5CryptoServiceProvider
                 Dim key() As Byte = md5.ComputeHash(Encoding.UTF8.GetBytes(StrSecret))
+                Dim iv() As Byte = Encoding.UTF8.GetBytes(App.Info.General.EncryptionIV)
 
                 md5.Clear()
                 rd.Key = key
-                rd.GenerateIV()
+                rd.IV = iv
 
-                Dim iv() As Byte = rd.IV
                 Dim ms As New MemoryStream
 
                 ms.Write(iv, 0, iv.Length)

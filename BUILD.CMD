@@ -2,16 +2,22 @@
 
 setlocal enabledelayedexpansion
 
-set VERSIONTAG=
+set VERSIONTAG=Beta2-Fixed-Rijndael-IV
 
-set VCVARSALL="%ProgramFiles(x86)%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
+set VCVARSALL="%ProgramFiles(x86)%\Microsoft Visual Studio 12.0\VC\vcvarsall.bat"
 set DEVENV="devenv.exe"
+
+rem Download NSIS Unicode from http://www.scratchpaper.com
 set MAKENSIS="%ProgramFiles(x86)%\NSIS\Unicode\makensis.exe"
+
+rem Use Chocolatey from http://chocolatey.org to install WinRAR
 set RAR="%ProgramFiles%\WinRAR\WinRAR.exe"
+
 set SIGNCMD=signtool.exe sign /n "Astrospark Technologies, LLC" /sha1 "1cbd910dbd6e77f26506e7f600736972f700673f" /tr http://timestamp.comodoca.com/rfc3161
 
 rem Windows Sysinternals Sigcheck from http://technet.microsoft.com/en-us/sysinternals/bb897441
-set SIGCHECK="%ProgramFiles(x86)%\Sigcheck\sigcheck.exe"
+rem Use Chocolatey from http://chocolatey.org to install the sysinternals package that includes Sigcheck 
+set SIGCHECK="C:\tools\sysinternals\sigcheck.exe"
 
 call %VCVARSALL% x86
 
@@ -34,9 +40,11 @@ goto END
 
 echo Building release version...
 %DEVENV% "%~dp0\mRemoteV1.sln" /build "Release"
+rmdir /s /q "%~dp0\mRemoteV1\bin\Release\app.publish"
 
 echo Building portable version...
 %DEVENV% "%~dp0\mRemoteV1.sln" /build "Release Portable"
+rmdir /s /q "%~dp0\mRemoteV1\bin\Release Portable\app.publish"
 
 echo Signing binaries...
 %SIGNCMD% ^

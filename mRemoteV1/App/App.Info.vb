@@ -10,6 +10,7 @@ Namespace App
             Public Shared ReadOnly URLBugs As String = "http://bugs.mremoteng.org/"
             Public Shared ReadOnly HomePath As String = My.Application.Info.DirectoryPath
             Public Shared EncryptionKey As String = "mR3m"
+            Public Shared EncryptionIV As String = "1234567890123456"
             Public Shared ReportingFilePath As String = ""
             Public Shared ReadOnly PuttyPath As String = My.Application.Info.DirectoryPath & "\PuTTYNG.exe"
             Public Shared ReadOnly Property UserAgent As String
