@@ -2,7 +2,7 @@
 
 setlocal enabledelayedexpansion
 
-set VERSIONTAG=
+set VERSIONTAG=Fixed-Rijndael-IV
 
 set VCVARSALL="%ProgramFiles(x86)%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
 set DEVENV="devenv.exe"
@@ -11,7 +11,7 @@ set RAR="%ProgramFiles%\WinRAR\WinRAR.exe"
 set SIGNCMD=signtool.exe sign /n "Astrospark Technologies, LLC" /sha1 "1cbd910dbd6e77f26506e7f600736972f700673f" /tr http://timestamp.comodoca.com/rfc3161
 
 rem Windows Sysinternals Sigcheck from http://technet.microsoft.com/en-us/sysinternals/bb897441
-set SIGCHECK="%ProgramFiles(x86)%\Sigcheck\sigcheck.exe"
+set SIGCHECK="%ChocolateyInstall%\lib\sysinternals\tools\sigcheck.exe"
 
 call %VCVARSALL% x86
 

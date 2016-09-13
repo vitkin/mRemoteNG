@@ -1,3 +1,8 @@
+1.74 Fixed Rijndael IV (2016-09-13)
+  Added fixed Rijndael Initialization Vector for shared XML connections configuration.
+
+
+
 1.74 (2016-06-28):
 
   Supported Platforms/Components:

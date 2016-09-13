@@ -23,12 +23,12 @@ namespace mRemoteNG.Security
 					
 				MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
 				byte[] key = md5.ComputeHash(Encoding.UTF8.GetBytes(StrSecret));
+				byte[] iv = Encoding.UTF8.GetBytes(App.Info.GeneralAppInfo.EncryptionIV);
 					
 				md5.Clear();
 				rd.Key = key;
-				rd.GenerateIV();
-					
-				byte[] iv = rd.IV;
+				rd.IV = iv;
+
 				MemoryStream ms = new MemoryStream();
 					
 				ms.Write(iv, 0, iv.Length);
